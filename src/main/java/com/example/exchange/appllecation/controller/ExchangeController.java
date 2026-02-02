@@ -16,11 +16,11 @@ public class ExchangeController {
 		this.exchangeService = exchangeService;
 	}
 	
-	// 動作確認用:レート取得（まだAPI未実装なのでダミー
-	@GetMapping("/rate")
-	public double getRate(@RequestParam String base, @RequestParam String target) {
-		// TODO : API クライアント実装後に fetchRateFromApi を呼ぶ
-		return exchangeService.fetchRateFromApi(base, target);
+	// レート取得
+	@GetMapping("/save")
+	public Object save(@RequestParam String base, @RequestParam String target) {
+		double rate = exchangeService.fetchRateFromApi(base, target);
+		return exchangeService.saveRate(base, target, rate);
 	}
 	// 最新レートを返す
 	@GetMapping("/latest")

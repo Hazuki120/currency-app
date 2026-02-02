@@ -16,15 +16,18 @@ public class ExchangeRateApiClient {
 		String url = UriComponentsBuilder
 				.fromUriString("https://api.exchangerate.host/convert")
 				.queryParam("access_key", apiKey)
-				.queryParam("base", base)
-				.queryParam("symbols", target)
+				.queryParam("from", base)
+				.queryParam("to", target)
+				.queryParam("amount", 1)
 				.build()
 				.toUriString();
 		
 		Map response = restTemplate.getForObject(url, Map.class);
 		
-		Map<String, Double> rates = (Map<String, Double>)response.get("rates");
-		
-		return rates.get(target);
+		Object result = response.get("result");
+		if(result == null) {
+			throw new IllegalStateException("API returned no result:" + response);
+		}
+		return ((Number) result).doubleValue();
 	}
 }

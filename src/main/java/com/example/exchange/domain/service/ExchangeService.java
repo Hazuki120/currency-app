@@ -31,6 +31,7 @@ public class ExchangeService {
 		);
 		return rateRepository.save(entity);
 	}
+	
 	// 最新レートを取得
 	public CurrencyRate getLatestRate(String base, String target) {
 		return rateRepository.findTopByBaseCurrencyAndTargetCurrencyOrderByFetchedAtDesc(base, target).orElse(null);
