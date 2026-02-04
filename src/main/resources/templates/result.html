@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>変換結果</title>
+</head>
+<body>
+	<h1>変換結果</h1>
+	<p>
+		<span th:text="${amount}"></span>
+		<span th:text="${base}"></span>
+		→
+		<span th:text="${target}"></span>
+		=
+		<strong th:text="${result}"></strong>
+	</p>
+	
+	<a href="/exchange">戻る</a>
+
+</body>
+</html>

@@ -1,14 +1,13 @@
 package com.example.exchange.appllecation.controller;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.example.exchange.domain.service.ExchangeService;
 
-@RestController
-@RequestMapping("/api/exchange")
+@Controller
 public class ExchangeController {
 	private final ExchangeService exchangeService;
 	
@@ -31,5 +30,24 @@ public class ExchangeController {
 	@GetMapping("/convert")
 	public double convert(@RequestParam double amount, @RequestParam String base, @RequestParam String target) {
 		return exchangeService.convert(amount, base, target);
+	}
+	@GetMapping("/exchange")
+	public String showForm() {
+		return "exchange"; 	// templates/exchange.html を表示
+	}
+	@GetMapping("/exchange/result")
+	public String showResult(
+			@RequestParam double amount,
+			@RequestParam String base,
+			@RequestParam String target,
+			Model model) {
+		double result = exchangeService.convert(amount, base, target);
+		
+		model.addAttribute("amount", amount);
+		model.addAttribute("base", base);
+		model.addAttribute("target", target);
+		model.addAttribute("result", result);
+		
+		return "result";
 	}
 }

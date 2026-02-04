@@ -39,9 +39,19 @@ public class ExchangeService {
 	// 金額を変換
 	public double convert(double amount, String base, String target) {
 		CurrencyRate latest = getLatestRate(base, target);
+		// DB に無い場合は API から取得して保存
 		if(latest == null) {
-			throw new IllegalStateException("レートが存在しません");
+			double rate = fetchRateFromApi(base, target);
+			latest = saveRate(base, target, rate);
 		}
+		
+		// レートが1時間以上前なら更新
+		LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
+		if(latest.getFetchedAt().isBefore(oneHourAgo)) {
+			double newRate = fetchRateFromApi(base, target);
+			latest = saveRate(base, target, newRate);
+		}
+		
 		return amount * latest.getRate();
 	}
 	

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>為替レート変換</title>
+</head>
+<body>
+	<h1>為替レート変換</h1>
+	<form action="/exchange/result" method="get">
+		<label>基準通貨:</label>
+		<select name="base">
+			<option value="USD">USD(米ドル)</option>
+			<option value="GBP">GBP(英ポンド)</option>
+			<option value="EUR">EUR(ユーロ)</option>
+			<option value="AUD">AUD(豪ドル)</option>
+			<option value="KRW">KRW(韓国ウォン)</option>
+			<option value="HKD">HKD(香港ドル)</option>
+			<option value="JPY">JPY(日本円)</option>
+		</select>
+		
+		<br><br>
+		
+		<label>対象通貨：</label>
+		<select name="target">
+			<option value="JPY">JPY(日本円)</option>
+			<option value="USD">USD(米ドル)</option>
+			<option value="GBP">GBP(英ポンド)</option>
+			<option value="EUR">EUR(ユーロ)</option>
+			<option value="AUD">AUD(豪ドル)</option>
+			<option value="KRW">KRW(韓国ウォン)</option>
+			<option value="HKD">HKD(香港ドル)</option>
+				</select>
+		
+		<br><br>
+		
+		<label>金額：</label>
+		<input type="number" name="amount" value="100">
+		
+		<br><br>
+		
+		<button type="submit">変換する</button>
+	</form>
+
+</body>
+</html>
