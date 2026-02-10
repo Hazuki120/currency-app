@@ -17,6 +17,9 @@ public class CurrencyRate {
 	private Long id;
 	
 	@Column(nullable = false)
+	private String username;
+	
+	@Column(nullable = false)
 	private String baseCurrency;
 	
 	@Column(nullable = false)
@@ -30,7 +33,8 @@ public class CurrencyRate {
 	
 	public CurrencyRate() {}
 	
-	public CurrencyRate(String baseCurrency, String targetCurrency, Double rate, LocalDateTime fetchedAt) {
+	public CurrencyRate(String username, String baseCurrency, String targetCurrency, Double rate, LocalDateTime fetchedAt) {
+		this.username = username;
 		this.baseCurrency = baseCurrency;
 		this.targetCurrency = targetCurrency;
 		this.rate = rate;
@@ -39,6 +43,9 @@ public class CurrencyRate {
 	
 	public Long getId() {
 		return id;
+	}
+	public String getUsername() {
+		return username;
 	}
 	public String getBaseCurrency() {
 		return baseCurrency;

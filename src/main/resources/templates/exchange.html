@@ -1,10 +1,27 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-<meta charset="UTF-8">
-<title>為替レート変換</title>
+	<meta charset="UTF-8">
+	<title>為替レート変換</title>
 </head>
+
 <body>
+	<nav sec:authorize="isAuthenticated()" style="margin-bottom: 20px;">
+		<a href="/exchange">通貨変換</a>
+		<a href="/rates">レート一覧</a>
+
+		<!-- ログイン中のユーザ名 -->
+		<span sec:authentication="name">user</span>さん
+
+		<!-- ログアウトボタン（CSRF 対応済み） -->
+		<form method="post" action="/logout">
+			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+			<button type="submit">ログアウト</button>
+		</form>
+	</nav>
+
 	<h1>為替レート変換</h1>
 	<form action="/exchange/result" method="get">
 		<label>基準通貨:</label>
@@ -17,9 +34,9 @@
 			<option value="HKD">HKD(香港ドル)</option>
 			<option value="JPY">JPY(日本円)</option>
 		</select>
-		
+
 		<br><br>
-		
+
 		<label>対象通貨：</label>
 		<select name="target">
 			<option value="JPY">JPY(日本円)</option>
@@ -29,17 +46,21 @@
 			<option value="AUD">AUD(豪ドル)</option>
 			<option value="KRW">KRW(韓国ウォン)</option>
 			<option value="HKD">HKD(香港ドル)</option>
-				</select>
-		
+		</select>
+
 		<br><br>
-		
+
 		<label>金額：</label>
 		<input type="number" name="amount" value="100">
-		
-		<br><br>
-		
-		<button type="submit">変換する</button>
-	</form>
 
+		<br><br>
+
+		<button type="submit">変換する</button>
+
+		<br><br>
+
+		<a href="/rates">変換一覧を見る</a>
+	</form>
 </body>
+
 </html>

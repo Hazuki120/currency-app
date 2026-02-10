@@ -6,14 +6,14 @@ import org.springframework.stereotype.Service;
 
 import com.example.exchange.domain.model.CurrencyRate;
 import com.example.exchange.domain.repository.CurrencyRateRepository;
-import com.example.exchange.infrastructure.api.ExchangeRateApiClient;
+import com.example.exchange.infrastructure.api.CurrencyRateApiClient;
 
 @Service
-public class ExchangeService {
-	private final ExchangeRateApiClient apiClient;
+public class CurrencyConversionService {
+	private final CurrencyRateApiClient apiClient;
 	private final CurrencyRateRepository rateRepository;
 	
-	public ExchangeService(CurrencyRateRepository rateRepository, ExchangeRateApiClient apiClient) {
+	public CurrencyConversionService(CurrencyRateRepository rateRepository, CurrencyRateApiClient apiClient) {
 		this.rateRepository = rateRepository;
 		this.apiClient = apiClient;
 	}
@@ -25,9 +25,9 @@ public class ExchangeService {
 	}
 	
 	// レートを DB に保存
-	public CurrencyRate saveRate(String base, String target, double rate) {
+	public CurrencyRate saveRate(String username, String base, String target, double rate) {
 		CurrencyRate entity = new CurrencyRate(
-		base, target, rate, LocalDateTime.now()
+		username, base, target, rate, LocalDateTime.now()
 		);
 		return rateRepository.save(entity);
 	}
@@ -37,19 +37,19 @@ public class ExchangeService {
 		return rateRepository.findTopByBaseCurrencyAndTargetCurrencyOrderByFetchedAtDesc(base, target).orElse(null);
 	}
 	// 金額を変換
-	public double convert(double amount, String base, String target) {
+	public double convert(String username, double amount, String base, String target) {
 		CurrencyRate latest = getLatestRate(base, target);
 		// DB に無い場合は API から取得して保存
 		if(latest == null) {
 			double rate = fetchRateFromApi(base, target);
-			latest = saveRate(base, target, rate);
+			latest = saveRate(username, base, target, rate);
 		}
 		
 		// レートが1時間以上前なら更新
 		LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
 		if(latest.getFetchedAt().isBefore(oneHourAgo)) {
 			double newRate = fetchRateFromApi(base, target);
-			latest = saveRate(base, target, newRate);
+			latest = saveRate(username, base, target, newRate);
 		}
 		
 		return amount * latest.getRate();
