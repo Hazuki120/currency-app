@@ -1,9 +1,8 @@
-version: '3.8'
 
 services:
   mysql:
     image: mysql:8.0
-    container_name: exchange-mysql
+    container_name: currency-mysql
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: exchange
