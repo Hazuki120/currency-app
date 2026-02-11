@@ -10,10 +10,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>exchange</artifactId>
+	<artifactId>currency</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>exchange-app</name>
-	<description>Foreign exchange converter app</description>
+	<name>currency-app</name>
+	<description>Foreign currency converter app</description>
 	<url />
 	<licenses>
 		<license />

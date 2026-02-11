@@ -25,10 +25,10 @@ public class CurrencyConversionService {
 	}
 	
 	// レートを DB に保存
-	public CurrencyRate saveRate(String username, String base, String target, double rate) {
-		CurrencyRate entity = new CurrencyRate(
-		username, base, target, rate, LocalDateTime.now()
-		);
+	public CurrencyRate saveRate(String username, String base, String target, double rate, double amount) {
+		double converted = amount * rate;
+		
+		CurrencyRate entity = new CurrencyRate(username, base, target, rate, amount, converted, LocalDateTime.now());
 		return rateRepository.save(entity);
 	}
 	
@@ -39,20 +39,25 @@ public class CurrencyConversionService {
 	// 金額を変換
 	public double convert(String username, double amount, String base, String target) {
 		CurrencyRate latest = getLatestRate(base, target);
+		double rate;
 		// DB に無い場合は API から取得して保存
 		if(latest == null) {
-			double rate = fetchRateFromApi(base, target);
-			latest = saveRate(username, base, target, rate);
+			// 初回は API から取得
+			rate = fetchRateFromApi(base, target);
+		}else {
+			// 1時間以内なら API を呼ばずに最新レートを使う
+			LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
+			if(latest.getFetchedAt().isBefore(oneHourAgo)){
+				rate = fetchRateFromApi(base, target);
+			}else {
+				rate = latest.getRate();
+			}
 		}
 		
-		// レートが1時間以上前なら更新
-		LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
-		if(latest.getFetchedAt().isBefore(oneHourAgo)) {
-			double newRate = fetchRateFromApi(base, target);
-			latest = saveRate(username, base, target, newRate);
-		}
+		// 履歴は毎回保存する
+		saveRate(username, base, target, rate, amount);
 		
-		return amount * latest.getRate();
+		return amount * rate;
 	}
 	
 }

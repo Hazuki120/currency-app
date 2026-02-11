@@ -1,17 +1,31 @@
-
 services:
-  mysql:
+  currency-mysql:
     image: mysql:8.0
     container_name: currency-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: exchange
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: apppass
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3308:3306"
     volumes:
       - exchange_mysql_data:/var/lib/mysql
+    networks:
+      - exchange-net
+
+  currency-app:
+    build: .
+    container_name: currency-app
+    depends_on:
+      - currency-mysql
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://currency-mysql:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Tokyo
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      EXCHANGE_API_KEY: ${EXCHANGE_API_KEY}
     networks:
       - exchange-net
 

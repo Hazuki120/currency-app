@@ -54,15 +54,20 @@
 			<th>基準通貨</th>
 			<th>対象通貨</th>
 			<th>レート</th>
+			<th>変換前の金額</th>
+			<th>返還後の金額</th>
 			<th>取得日時</th>
 		</tr>
 	</thead>
+	<br><br>
 	<tbody>
 		<tr th:each="rate : ${rates}">
 			<td th:text="${rate.id}"></td>
 			<td th:text="${rate.baseCurrency}"></td>
 			<td th:text="${rate.targetCurrency}"></td>
 			<td th:text="${rate.rate}"></td>
+			<td th:text="${rate.amount}"></td>
+			<td th:text="${rate.convertedAmount}"></td>
 			<td th:text="${#temporals.format(rate.fetchedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
 		</tr>
 	</tbody>
