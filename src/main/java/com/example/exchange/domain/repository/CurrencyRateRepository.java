@@ -8,9 +8,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.exchange.domain.model.CurrencyRate;
 
 public interface CurrencyRateRepository extends JpaRepository<CurrencyRate, Long> {
-	List<CurrencyRate> findByUsername(String username);
-	Optional<CurrencyRate>findTopByBaseCurrencyAndTargetCurrencyOrderByFetchedAtDesc(
+	
+	/** 指定ユーザのレート履歴一覧を取得 */
+	List<CurrencyRate> findByUsernameOrderByFetchedAtDesc(String username);
+	
+	/** 指定ユーザの最新レートを取得 */
+	Optional<CurrencyRate>
+	findTopByUsernameAndBaseCurrencyAndTargetCurrencyOrderByFetchedAtDesc(
+			String username,
 			String baseCurrency,
-			String targetCurency);
+			String targetCurrency);
 
 }

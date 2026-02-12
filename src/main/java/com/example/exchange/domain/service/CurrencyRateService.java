@@ -10,10 +10,18 @@ import com.example.exchange.domain.repository.CurrencyRateRepository;
 
 @Service
 public class CurrencyRateService {
-	@Autowired
-	private CurrencyRateRepository repository;
+
+	private final CurrencyRateRepository repository;
 	
-	public List<CurrencyRate> getAllRates(){
-		return repository.findAll();
+	// コンストラクタインジェクション
+	public CurrencyRateService(CurrencyRateRepository repository) {
+		this.repository = repository;
+	}
+	
+	/**
+	 * ログインユーザのレート履歴を取得
+	 */
+	public List<CurrencyRate> getRatesByUsername(String username){
+		return repository.findByUsernameOrderByFetchedAtDesc(username);
 		}
 }

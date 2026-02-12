@@ -10,54 +10,95 @@ import com.example.exchange.infrastructure.api.CurrencyRateApiClient;
 
 @Service
 public class CurrencyConversionService {
+	
 	private final CurrencyRateApiClient apiClient;
 	private final CurrencyRateRepository rateRepository;
-	
-	public CurrencyConversionService(CurrencyRateRepository rateRepository, CurrencyRateApiClient apiClient) {
+
+	/**
+	 * コンストラクタインジェクション
+	 */
+	public CurrencyConversionService(
+			CurrencyRateRepository rateRepository,
+			CurrencyRateApiClient apiClient) {
 		this.rateRepository = rateRepository;
 		this.apiClient = apiClient;
 	}
-	
-	// 外部APIからレートを取得する部分は後
+
+	/**
+	 * 外部 API から最新レートを取得する
+	 */
 	public double fetchRateFromApi(String base, String target) {
-		// TODO : API クライアントを呼ぶ
 		return apiClient.getRate(base, target);
 	}
-	
-	// レートを DB に保存
-	public CurrencyRate saveRate(String username, String base, String target, double rate, double amount) {
+
+	/**
+	 * レート履歴を DB に保存する
+	 */
+	public CurrencyRate saveRate(
+			String username,
+			String base,
+			String target,
+			double rate,
+			double amount) {
 		double converted = amount * rate;
+
+		CurrencyRate entity = new CurrencyRate(
+				username,
+				base,
+				target,
+				rate,
+				amount,
+				converted,
+				LocalDateTime.now()
+		);
 		
-		CurrencyRate entity = new CurrencyRate(username, base, target, rate, amount, converted, LocalDateTime.now());
 		return rateRepository.save(entity);
 	}
-	
-	// 最新レートを取得
+
+	/**
+	 * 全ユーザ共通の最新レートを取得
+	 */
 	public CurrencyRate getLatestRate(String base, String target) {
-		return rateRepository.findTopByBaseCurrencyAndTargetCurrencyOrderByFetchedAtDesc(base, target).orElse(null);
+		return rateRepository
+				.findTopByBaseCurrencyAndTargetCurrencyOrderByFetchedAtDesc(base, target)
+				.orElse(null);
 	}
-	// 金額を変換
-	public double convert(String username, double amount, String base, String target) {
-		CurrencyRate latest = getLatestRate(base, target);
+
+	/**
+	 * 金額変換のメインロジック
+	 * ・1時間以内なら DB のレートを使用
+	 * ・1時間以上経過していれば API 再取得
+	 * ・履歴は毎回保存
+	 */
+	public double convert(
+			String username,
+			double amount,
+			String base,
+			String target) {
+
+		CurrencyRate latest = getLatestRate(username, base, target);
 		double rate;
-		// DB に無い場合は API から取得して保存
-		if(latest == null) {
+
+		// DB レートが存在しない or 1時間以上経過
+		if (latest == null || isExpired(latest)) {
 			// 初回は API から取得
 			rate = fetchRateFromApi(base, target);
-		}else {
-			// 1時間以内なら API を呼ばずに最新レートを使う
-			LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
-			if(latest.getFetchedAt().isBefore(oneHourAgo)){
-				rate = fetchRateFromApi(base, target);
-			}else {
-				rate = latest.getRate();
-			}
+		} else {
+			rate = latest.getRate();
 		}
+
+		// 履歴は毎回保存
+		CurrencyRate saved = saveRate(username, base, target, rate, amount);
 		
-		// 履歴は毎回保存する
-		saveRate(username, base, target, rate, amount);
-		
-		return amount * rate;
+		return saved.getConvertedAmount();
 	}
 	
+	/**
+	 * レートが 1時間以上前かどうか判定
+	 */
+	private boolean isExpired(CurrencyRate rate) {
+		return rate.getFetchedAt()
+				.isBefore(LocalDateTime.now().minusHours(1));
+	}
+
 }

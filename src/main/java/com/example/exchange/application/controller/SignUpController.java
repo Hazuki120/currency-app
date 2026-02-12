@@ -1,4 +1,4 @@
-package com.example.exchange.appllecation.controller;
+package com.example.exchange.application.controller;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import com.example.exchange.domain.User;
 import com.example.exchange.domain.UserRepository;
 
+/**
+ * ユーザ登録を処理するコントローラ
+ */
 @Controller
 public class SignUpController {
 	
@@ -26,7 +29,14 @@ public class SignUpController {
 	}
 	
 	@PostMapping("/signup")
-	public String registerUser(String username, String password) {
+	public String registerUser(
+			@RequestParam String username,
+			@RequestParam String password) {
+		
+		// 既存ユーザ確認
+		if(userRepository.existsByUsername(username)) {
+			return "redirect:/signup?error";
+		}
 		
 		User user = new User();
 		user.setUsername(username);
