@@ -6,4 +6,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	
 	// username でユーザを検索するためのメソッド
 	User findByUsername(String username);
+	
+	boolean existsByUsername(String username);
 }

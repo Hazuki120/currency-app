@@ -5,9 +5,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.exchange.domain.service.CurrencyConversionService;
+
 
 /**
  * 通貨返還に関するリクエストを処理するコントローラ
@@ -38,7 +41,7 @@ public class CurrencyController {
 		double rate = currencyService.fetchRateFromApi(base, target);
 		
 		// DB へ保存
-		currencyService.fetchRateFromApi(base, target);
+		currencyService.saveRate(username, base, target, rate, amount);
 		
 		return "redirect:/exchange";
 	}
@@ -49,10 +52,11 @@ public class CurrencyController {
 	@GetMapping("/latest")
 	@ResponseBody
 	public Object getLatest(
+			@AuthenticationPrincipal UserDetails user,
 			@RequestParam String base,
 			@RequestParam String target) {
-		
-		return currencyService.getLatestRate(base, target);
+		String username = user.getUsername();
+		return currencyService.getLatestRate(username, base, target);
 	}
 	
 	/**

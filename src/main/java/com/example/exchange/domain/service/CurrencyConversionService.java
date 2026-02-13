@@ -58,9 +58,9 @@ public class CurrencyConversionService {
 	/**
 	 * 全ユーザ共通の最新レートを取得
 	 */
-	public CurrencyRate getLatestRate(String base, String target) {
+	public CurrencyRate getLatestRate(String username, String base, String target) {
 		return rateRepository
-				.findTopByBaseCurrencyAndTargetCurrencyOrderByFetchedAtDesc(base, target)
+				.findTopByUsernameAndBaseCurrencyAndTargetCurrencyOrderByFetchedAtDesc(username, base, target)
 				.orElse(null);
 	}
 

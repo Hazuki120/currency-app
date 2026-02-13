@@ -37,15 +37,15 @@ public class CurrencyRate {
 	@Column(nullable = false)
 	private Double rate;
 	
-	/** ユーザが変換した元の金額（例：100 USD) */
+	/** レートを取得した日時（API呼び出し時刻） */
 	@Column(nullable = false)
 	private LocalDateTime fetchedAt;
 	
-	/** 変換後の金額（例：100 USD → 15361 JPY） */
+	/** ユーザが変換した元の金額（例：100 USD) */
 	@Column(nullable = false)
 	private Double amount;
 	
-	/** レートを取得した日時（API呼び出し時刻） */
+	/**  変換後の金額（例：100 USD → 15361 JPY） */
 	@Column(nullable = false)
 	private Double convertedAmount;
 	
