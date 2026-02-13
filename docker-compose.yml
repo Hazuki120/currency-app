@@ -22,6 +22,8 @@ services:
     ports:
       - "8080:8080"
     environment:
+      TZ: Asia/Tokyo
+      JAVA_OPTS: "-Duser.timezone=Asia/Tokyo"
       SPRING_DATASOURCE_URL: jdbc:mysql://currency-mysql:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Tokyo
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}

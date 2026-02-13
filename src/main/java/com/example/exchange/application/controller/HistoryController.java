@@ -1,12 +1,14 @@
 package com.example.exchange.application.controller;
 
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.example.exchange.domain.model.CurrencyRate;
 import com.example.exchange.domain.service.CurrencyRateService;
 
 /**
@@ -19,16 +21,15 @@ import com.example.exchange.domain.service.CurrencyRateService;
  * データ取得ロジックは Service に委譲している。
  */
 @Controller
-@RequestMapping("/rates")
-public class RateListController {
-	
-	private final CurrencyRateService rateService;
-	
-	public RateListController(CurrencyRateService rateService) {
-		this.rateService = rateService;
-	}
-	
-	/**
+public class HistoryController {
+
+    private final CurrencyRateService rateService;
+
+    public HistoryController(CurrencyRateService rateService) {
+        this.rateService = rateService;
+    }
+
+    /**
 	 * ログイン中のユーザの履歴一覧を取得し、
 	 * rate-list.html に渡す
 	 * 
@@ -36,16 +37,17 @@ public class RateListController {
 	 * @param model 画面へ値を渡すための Model
 	 * @return 表示するテンプレート名
 	 */
-	@GetMapping
-	public String showRateList (
-		@AuthenticationPrincipal UserDetails user,
-		Model model) {
-		
-		String username = user.getUsername();
-		
-		model.addAttribute("rates",
-				rateService.getRatesByUsername(username));
-		
-		return "rate-list";
-	}
+    @GetMapping("/exchange/history") // URLを統一
+    public String showHistory(
+            @AuthenticationPrincipal UserDetails user,
+            Model model) {
+
+        String username = user.getUsername();
+
+        List<CurrencyRate> rates = rateService.getRatesByUsername(username);
+
+        model.addAttribute("rates", rates);
+
+        return "history"; // templates/history.html
+    }
 }

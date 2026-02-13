@@ -1,6 +1,7 @@
 package com.example.exchange.domain.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -53,6 +54,13 @@ public class CurrencyConversionService {
 		);
 		
 		return rateRepository.save(entity);
+	}
+	
+	/**
+	 * ユーザのレート履歴を取得（履歴一覧用）
+	 */
+	public List<CurrencyRate> getAllRates(String username){
+		return rateRepository.findByUsernameOrderByFetchedAtDesc(username);
 	}
 
 	/**
