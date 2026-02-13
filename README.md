@@ -20,21 +20,47 @@ Spring Boot の理解を深めるため、以下の要素を含む実践的な W
  - ユーザー登録・ログイン（Spring Security）
  - 外部 API から通貨レート取得
  - レートの自動保存（ユーザーごと）
- - 1時間以内のﾚｰﾄﾊｻｓsあ
+ - 1時間以内のﾚｰﾄは再取得しない設計
  - 金額変換（例：USD → JPY）
  - ユーザーごとのレート履歴表示
  ---
  
 ## 使用技術
 
-* Java 21
-* Spring Boot
-* Spring Security
-* Spring Data JPA
-* MySQL 8.0（Docker）
-* Thymeleaf
-* Docker
+| 分類 | 技術 |
+| 言語 | Java 21 |
+| フレームワーク | Spring Boot |
+| 認証 | Spring Security |
+| ORM | Spring Data JPA |
+| DB | MySQL 8.0（Docker）|
+| テンプレート | Thymeleaf |
+| コンテナ | Docker |
 ---
+
+## アーキテクチャ構成
+### Docker 構成
+ - `currency-app`（Spring Boot）
+ - `currency-mysql`（MySQL 8.0）
+ Docker Compose により、アプリと DB を同一ネットワークで接続。  
+ 
+ コンテナ内では `localhost` ではなく **サービス名で接続する設計** を採用。
+ 
+## 技術的な工夫
+①API制限対策
+1時間以内に取得済みのレートが存在する場合は外部 API を呼ばず、DB の値を利用。  
+→ API 使用回数削減 & パフォーマンス向上  
+---
+②ユーザ単位データ管理
+認証ユーザ名をキーに保存することで、ユーザごとのデータ分離を実現。  
+---
+③Docker 環境での問題解決
+開発中に発生した問題：  
+・Hidernate Dialect エラー  
+・コンテナ内から`localhost`接続できない問題  
+・Maven parent POM 解決エラー  
+→ ログ解析・ネットワーク理解により解決  
+---
+
 
 ## アプリ全体構成図
 
@@ -66,35 +92,33 @@ Spring Boot の理解を深めるため、以下の要素を含む実践的な W
 git clone https://github.com/Hazuki120/exchange.git
 ```
 
-### 2. Docker で MySQL を起動
+### 2. `.env`ファイル作成
+```env
+MYSQL_ROOT_PASSWORD=rootpass
+MYSQL_DATABASE=exchange
+MYSQL_USER=appuser
+MYSQL_PASSWORD=apppass
+
+SPRING_DATASOURCE_USERNAME=appuser
+SPRING_DATASOURCE_PASSWORD=apppass
+
+EXCHANGE_API_KEY=your_api_key
+```
+⚠ Windows の環境変数に同名キーがあると `.env` が無視されるので注意。  
+### 3. Docker で MySQL を起動
 #### 起動
 ```bash
-docker compose up -d
+docker compose up --build
 ```
+
+### 4. アクセス方法
+アプリ起動後、ブラウザで以下にアクセスしてください。  
+
+http://localhost:8080  
 #### 停止
 ```bash
 docker compose down
 ```
-
-### 3. `.env` の設定（Spring Boot 用）
-Spring Boot は `application.properties` ではなく `.env` を読み込みます。  
-例：
-
-```env
-DB_URL=jdbc:mysql://localhost:3306/currency?useSSL=false&serverTimezone=Asia/Tokyo
-DB_USER=appuser
-DB_PASSWORD=apppass
-API_KEY=xxxxx
-```
-⚠ Windows の環境変数に同名キーがあると `.env` が無視されるので注意。  
-
-### 4. アプリを起動
-```bash
-./mvnw spring-boot:run
-```
-または IDE から `ExchangeApplication` を実行。
-
----
 
 ## API エンドポイント一覧
 | メソッド | パス | 説明 |
@@ -109,6 +133,15 @@ API_KEY=xxxxx
  - API レート制限対策（キャッシュ強化）
  - グラフ表示（レート推移）
  - UI/UX 改善（Bootstrap 導入）
+ 
+---
+## このアプリで学んだこと
+ - Spring Security の認証フロー理解
+ - 外部 API 連携の実装方法
+ - Docker による開発環境構築
+ - コンテナ間通信の考え方
+ 
+ 
 
  
  
