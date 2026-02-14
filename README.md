@@ -53,7 +53,8 @@ Controller → Service → Repository → MySQL
 ## 技術的な工夫
   
 ---
-### ①  API 制限対策
+### ①  API 制限対策 
+
 １時間以内に取得済みのレートが存在する場合は外部 API を呼ばす、DB の値を利用。  
 → API 使用回数削減 & パフォーマンス向上
 --- 
@@ -140,6 +141,7 @@ docker compose down
 | GET | /save | レート保存（内部用） |
 
 ## ディレクトリ構成
+```text
 src/  
  └─ main/  
      ├─ java/  
@@ -175,6 +177,7 @@ src/
          │    ├─ result.html  
          │    └─ signup.html  
          └─ application.properties  
+```
 
 ## 今後の課題
  - API レート制限対策（キャッシュ強化）
