@@ -49,13 +49,14 @@ Controller → Service → Repository → MySQL
  
  コンテナ内では `localhost` ではなく **サービス名で接続する設計** を採用しています。
  
+ 
 ## 技術的な工夫
-
+  
 ---
-### ① API制限対策
-1時間以内に取得済みのレートが存在する場合は外部 API を呼ばず、DB の値を利用。  
-→ API 使用回数削減 & パフォーマンス向上  
----
+### ① API 制限対策
+１時間以内に取得済みのレートが存在する場合は外部 API を呼ばす、DB の値を利用。  
+→ API 使用回数削減 & パフォーマンス向上
+--- 
 ### ② ユーザ単位のデータ管理
 認証ユーザ名をキーとして保存することで、ユーザごとのデータ分離を実現。
 
@@ -139,41 +140,41 @@ docker compose down
 | GET | /save | レート保存（内部用） |
 
 ## ディレクトリ構成
-src/
- └─ main/
-     ├─ java/
-     │   └─ com/example/exchange/
-     │        ├─ application/
-     │        │    ├─ controller/
-     │        │    │    ├─ CurrencyController.java
-     │        │    │    ├─ HistoryController.java
-     │        │    │    ├─ LoginController.java
-     │        │    │    └─ SignUpController.java
-     │        │    └─ config/
-     │        │         └─ SecurityConfig.java
-     │        ├─ domain/
-     │        │    ├─ model/
-     │        │    │    ├─ CurrencyRate.java
-     │        │    │    └─ User.java
-     │        │    ├─ repository/
-     │        │    │    ├─ CurrencyRateRepository.java
-     │        │    │    └─ UserRepository.java
-     │        │    ├─ service/
-     │        │    │    ├─ CurrencyConversionService.java
-     │        │    │    ├─ CurrencyRateService.java
-     │        │    │    ├─ CustomUserDetailsService.java
-     │        │    │    └─ UserService.java
-     │        └─ infrastructure/
-     │             └─ CurrencyAppApplication.java
-     └─ resources/
-         ├─ static/
-         ├─ templates/
-         │    ├─ exchange.html
-         │    ├─ history.html
-         │    ├─ login.html
-         │    ├─ result.html
-         │    └─ signup.html
-         └─ application.properties
+src/  
+ └─ main/  
+     ├─ java/  
+     │   └─ com/example/exchange/  
+     │        ├─ application/  
+     │        │    ├─ controller/  
+     │        │    │    ├─ CurrencyController.java  
+     │        │    │    ├─ HistoryController.java  
+     │        │    │    ├─ LoginController.java  
+     │        │    │    └─ SignUpController.java  
+     │        │    └─ config/  
+     │        │         └─ SecurityConfig.java  
+     │        ├─ domain/  
+     │        │    ├─ model/  
+     │        │    │    ├─ CurrencyRate.java  
+     │        │    │    └─ User.java  
+     │        │    ├─ repository/  
+     │        │    │    ├─ CurrencyRateRepository.java  
+     │        │    │    └─ UserRepository.java  
+     │        │    ├─ service/  
+     │        │    │    ├─ CurrencyConversionService.java  
+     │        │    │    ├─ CurrencyRateService.java  
+     │        │    │    ├─ CustomUserDetailsService.java  
+     │        │    │    └─ UserService.java  
+     │        └─ infrastructure/  
+     │             └─ CurrencyAppApplication.java  
+     └─ resources/  
+         ├─ static/  
+         ├─ templates/  
+         │    ├─ exchange.html  
+         │    ├─ history.html  
+         │    ├─ login.html  
+         │    ├─ result.html  
+         │    └─ signup.html  
+         └─ application.properties  
 
 ## 今後の課題
  - API レート制限対策（キャッシュ強化）
