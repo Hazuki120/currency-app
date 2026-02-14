@@ -18,7 +18,7 @@ import com.example.exchange.domain.service.CurrencyConversionService;
 @Controller
 public class CurrencyController {
 	
-	// サービス層を DI （依存性注入）
+	// 通貨変換サービス（DI）
 	private final CurrencyConversionService currencyService;
 	
 	public CurrencyController(CurrencyConversionService currencyService) {
@@ -47,7 +47,7 @@ public class CurrencyController {
 	}
 	
 	/**
-	 * 最新レートを取得
+	 * 最新レートを取得（API 用）
 	 */
 	@GetMapping("/latest")
 	@ResponseBody
@@ -55,6 +55,7 @@ public class CurrencyController {
 			@AuthenticationPrincipal UserDetails user,
 			@RequestParam String base,
 			@RequestParam String target) {
+		
 		String username = user.getUsername();
 		return currencyService.getLatestRate(username, base, target);
 	}
@@ -94,6 +95,7 @@ public class CurrencyController {
 			Model model) {
 		
 		String username = user.getUsername();
+		
 		// 変換処理
 		double result = currencyService.convert(username, amount, base, target);
 		

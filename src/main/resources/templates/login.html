@@ -1,26 +1,39 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-<meta charset="UTF-8">
-<title>ログイン画面</title>
-<style>
-	body {font-family: sans-serif; margin: 40px;}
-	.login-box{
-		width: 300px;
-		margin: auto;
-		padding: 20px;
-		border: 1px solid #ccc;
-		border-radius: 8px;
-	}
-input {
-	width: 100%; padding: 8px; margin-top: 10px;
-}
-button { width: 100%; padding: 10px; margin-top: 15px;}
-</style>
+	<meta charset="UTF-8">
+	<title>ログイン画面</title>
+	<style>
+		body {
+			font-family: sans-serif;
+			margin: 40px;
+		}
+
+		.login-box {
+			width: 300px;
+			margin: auto;
+			padding: 20px;
+			border: 1px solid #ccc;
+			border-radius: 8px;
+		}
+
+		input {
+			width: 100%;
+			padding: 8px;
+			margin-top: 10px;
+		}
+
+		button {
+			width: 100%;
+			padding: 10px;
+			margin-top: 15px;
+		}
+	</style>
 </head>
+
 <body>
-	
+
 	<h2>ログイン</h2>
 
 	<div class="login-box">
@@ -28,26 +41,35 @@ button { width: 100%; padding: 10px; margin-top: 15px;}
 		<div th:if="${param.error}">
 			<p style="color: red;">ユーザー名またはパスワードが間違っています。</p>
 		</div>
+		
+		<!-- ログアウト完了メッセージ -->
 		<div th:if="${param.logout}">
 			<p style="color: grey;">ログアウトしました。</p>
 		</div>
+		
+		<!-- 新規登録完了メッセージ -->
 		<div th:if="${param.registered}">
-		    <p style="color: green;">登録が完了しました！ログインしてください。</p>
+			<p style="color: green;">登録が完了しました！ログインしてください。</p>
 		</div>
+		
+		<!-- ログインフォーム -->
 		<form method="post" action="/login">
 			<label>ユーザー名</label>
-			<input type="text" name="username" required>
-			
+			<input type="text" id="username" name="username" required>
+
 			<label>パスワード</label>
-			<input type="password" name="password" required>
+			<input type="password" id="password" name="password" required>
+
+			<button type="submit">ログイン</button>
 			
-			<button type="submit">ログイン</button> 
+			<!-- CSRF トークン -->
 			<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 		</form>
-		<br><br>
-		<a href="/signup">
-			<button type="button">新規登録はこちら</button>
-		</a>
+		<br>
+		
+		<!-- 新規登録ページへのリンク -->
+		<a href="/signup" class="btn">新規登録はこちら</a>
 	</div>
 </body>
+
 </html>

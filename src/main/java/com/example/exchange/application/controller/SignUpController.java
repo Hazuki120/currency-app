@@ -8,13 +8,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.example.exchange.domain.service.UserService;
 
 /**
- * ログインユーザのレート履歴を表示するコントローラ
+ * ユーザ登録（サインアップ）を担当するコントローラ
  * 
- * 認証済みユーザの username を取得し、
- * Service 層を通して該当ユーザの履歴のみ取得する。
- * 
- * Controller は「画面制御のみ」を担当し、
- * データ取得ロジックは Service に委譲している。
+ * Controller は画面制御に専念し、
+ * 登録処理のロジックは Service 層に委譲している。
  */
 @Controller
 public class SignUpController {
@@ -25,11 +22,23 @@ public class SignUpController {
         this.userService = userService;
     }
 
+    /**
+     * サインアップ画面を表示
+     * 
+     * @return 表示するテンプレート名
+     */
     @GetMapping("/signup")
     public String showSignUpForm() {
         return "signup";
     }
 
+    /**
+     * ユーザ登録処理を実行
+     * 
+     * @param username 入力されたユーザ名
+     * @param password 入力されたパスワード
+     * @return リダイレクト先 URL
+     */
     @PostMapping("/signup")
     public String registerUser(
             @RequestParam String username,
@@ -37,10 +46,12 @@ public class SignUpController {
 
         boolean success = userService.registerUser(username, password);
 
+        // 登録失敗時はエラー付きでサインアップ画面へ戻す
         if (!success) {
             return "redirect:/signup?error";
         }
 
+        // 登録成功時はログイン画面へ
         return "redirect:/login?registered";
     }
 }

@@ -3,15 +3,16 @@ package com.example.exchange.domain.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.exchange.domain.User;
-import com.example.exchange.domain.UserRepository;
+import com.example.exchange.domain.model.User;
+import com.example.exchange.domain.repository.UserRepository;
 
 /**
- * ユーザに関するビジネスロジックを扱う Service
+ * ユーザに関するビジネスロジックを担当するサービス。
  *
  * ・ユーザ登録処理
  * ・重複チェック
  * ・パスワードのハッシュ化
+ * を行う。
  */
 @Service
 public class UserService {
@@ -19,6 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /** コンストラクタインジェクション */
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -42,9 +44,10 @@ public class UserService {
         User user = new User();
         user.setUsername(username);
 
-        // セキュリティ対策：必ずハッシュ化
+        // セキュリティ対策：パスワードは必ずハッシュ化して保存
         user.setPassword(passwordEncoder.encode(password));
 
+        // 権限は固定で USER を付与
         user.setRole("USER");
 
         userRepository.save(user);

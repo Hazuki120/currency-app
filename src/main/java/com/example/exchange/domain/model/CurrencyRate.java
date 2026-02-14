@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
 
 /**
  * 通貨レート履歴を保存するエンティティ
- * 1回の変換処理ごとに1レコード保存される
+ * 1回の変換処理につき1レコード保存される。
  */
 @Entity
 @Table(name = "currency_rate")
@@ -35,7 +35,7 @@ public class CurrencyRate {
 	
 	/** 1単位当たりのレート（例：１USD = 153.6 JPY) */
 	@Column(nullable = false)
-	private Double rate;
+	private double rate;
 	
 	/** レートを取得した日時（API呼び出し時刻） */
 	@Column(nullable = false)
@@ -43,32 +43,33 @@ public class CurrencyRate {
 	
 	/** ユーザが変換した元の金額（例：100 USD) */
 	@Column(nullable = false)
-	private Double amount;
+	private double amount;
 	
 	/**  変換後の金額（例：100 USD → 15361 JPY） */
 	@Column(nullable = false)
-	private Double convertedAmount;
+	private double convertedAmount;
 	
 	/** JPA 用のデフォルトコンストラクタ */
 	public CurrencyRate() {}
 	
 	/**
 	 * 通常のコンストラクタ
+	 * 
 	 * @param username			ユーザー名
 	 * @param baseCurrency		基準通貨
 	 * @param targetCurrency	対象通貨
 	 * @param rate				レート
-	 * @param amount			変換した元の金額
-	 * @param convertedAmount	返還後の金額
+	 * @param amount			変換前の金額
+	 * @param convertedAmount	変換後の金額
 	 * @param fetchedAt			レート取得日時
 	 */
 	public CurrencyRate(
 			String username,
 			String baseCurrency,
 			String targetCurrency,
-			Double rate,
-			Double amount,
-			Double convertedAmount,
+			double rate,
+			double amount,
+			double convertedAmount,
 			LocalDateTime fetchedAt) {
 		
 		this.username = username;
@@ -80,7 +81,7 @@ public class CurrencyRate {
 		this.fetchedAt = fetchedAt;
 	}
 	
-	// Getter(値を取り出すためのメソッド）
+	// Getter(値を取得するためのメソッド）
 	public Long getId() {
 		return id;
 	}
@@ -93,13 +94,13 @@ public class CurrencyRate {
 	public String getTargetCurrency() {
 		return targetCurrency;
 	}
-	public Double getRate() {
+	public double getRate() {
 		return rate;
 	}
-	public Double getAmount() {
+	public double getAmount() {
 		return amount;
 	}
-	public Double getConvertedAmount() {
+	public double getConvertedAmount() {
 		return convertedAmount;
 	}
 	public LocalDateTime getFetchedAt() {

@@ -1,20 +1,19 @@
 
 # 通貨変換アプリ（Spring Boot + MySQL + Docker）
 
-外部 API から取得した通貨レートをユーザーごとに保存し、最新レートを使って金額変換ができる Web アプリです。  
-Spring Boot を用いたバックエンド開発に加え、認証・DB設計・API連携・Docker による環境構築までを一貫して実装しています。
+外部 API から取得した通貨レートをユーザごとに保存し、最新レートを使って金額変換ができる Web アプリです。  
+Spring Boot を中心に、認証・DB 設計・API連携・Docker による環境構築まで実装しています。
 ---
 
 ## 開発背景
-Spring Boot の理解を深めるため、以下の要素を含む実践的な Web アプリを制作しました。
+Spring Boot の理解を深めるため、以下の要素を含む Web アプリを制作しました。
 
  - 認証機能 (Spring Security）
  - DB 永続化（Spring Data JPA）
  - 外部 API 連携
- - ユーザ単位のデータ分離
+ - ユーザ単位でのデータ分離
  - Docker によるコンテナ環境構築
- 
- 単なる CRUD アプリではなく、実務に近い構成を意識して設計しています。
+---
 
 ## 主な機能
  - ユーザー登録・ログイン（Spring Security）
@@ -39,51 +38,59 @@ Spring Boot の理解を深めるため、以下の要素を含む実践的な W
 ---
 
 ## アーキテクチャ構成
+
+本アプリは以下のレイヤー構造で実装しています：  
+Controller → Service → Repository → MySQL  
+
 ### Docker 構成
  - `currency-app`（Spring Boot）
  - `currency-mysql`（MySQL 8.0）
  Docker Compose により、アプリと DB を同一ネットワークで接続。  
  
- コンテナ内では `localhost` ではなく **サービス名で接続する設計** を採用。
+ コンテナ内では `localhost` ではなく **サービス名で接続する設計** を採用しています。
  
 ## 技術的な工夫
 
- ① API制限対策
+---
+### ① API制限対策
 1時間以内に取得済みのレートが存在する場合は外部 API を呼ばず、DB の値を利用。  
 → API 使用回数削減 & パフォーマンス向上  
 ---
- ② ユーザ単位データ管理
-認証ユーザ名をキーに保存することで、ユーザごとのデータ分離を実現。  
+### ② ユーザ単位のデータ管理
+認証ユーザ名をキーとして保存することで、ユーザごとのデータ分離を実現。
+
 ---
- ③ Docker 環境での問題解決
+### ③ Docker 環境での問題解決
 開発中に発生した問題：  
-・Hidernate Dialect エラー  
+・Hibernate Dialect エラー  
 ・コンテナ内から`localhost`接続できない問題  
 ・Maven parent POM 解決エラー  
-→ ログ解析・ネットワーク理解により解決  
+→ ログ解析・ネットワーク理解により解決しました。  
+ 
 ---
 
 
 ## アプリ全体構成図
 
-写真
+<img src="./screenshots/dfd.png" width="700">
 
 ### ER 図
 
-写真
+<img src="./screenshots/erd.png" width="600">
 
 ## 画面キャプチャ
 
 ### ログイン画面
-
-写真
+ユーザー名とパスワードでログインします。  
+<img src="./screenshots/login.png" width="450">
 
 ### 通貨変換画面
-写真
+基準通貨・対象通貨・金額を入力して変換を行います。  
+<img src="./screenshots/exchange.png" width="500">
 
 ### レート履歴画面
-
-写真
+ユーザごとに保存された変換履歴を一覧表示します。  
+<img src="./screenshots/history.png" width="600">
 
 ---
 
@@ -127,14 +134,52 @@ docker compose down
 |----------|------|------|
 | GET | /exchange | 通貨変換フォーム |
 | GET | /exchange/result | 変換結果表示 |
-| GET | /rates | ユーザーのレート履歴 |
+| GET | /exchange/history | ユーザのレート履歴 |
 | GET | /latest | 最新レート取得 |
 | GET | /save | レート保存（内部用） |
+
+## ディレクトリ構成
+src/
+ └─ main/
+     ├─ java/
+     │   └─ com/example/exchange/
+     │        ├─ application/
+     │        │    ├─ controller/
+     │        │    │    ├─ CurrencyController.java
+     │        │    │    ├─ HistoryController.java
+     │        │    │    ├─ LoginController.java
+     │        │    │    └─ SignUpController.java
+     │        │    └─ config/
+     │        │         └─ SecurityConfig.java
+     │        ├─ domain/
+     │        │    ├─ model/
+     │        │    │    ├─ CurrencyRate.java
+     │        │    │    └─ User.java
+     │        │    ├─ repository/
+     │        │    │    ├─ CurrencyRateRepository.java
+     │        │    │    └─ UserRepository.java
+     │        │    ├─ service/
+     │        │    │    ├─ CurrencyConversionService.java
+     │        │    │    ├─ CurrencyRateService.java
+     │        │    │    ├─ CustomUserDetailsService.java
+     │        │    │    └─ UserService.java
+     │        └─ infrastructure/
+     │             └─ CurrencyAppApplication.java
+     └─ resources/
+         ├─ static/
+         ├─ templates/
+         │    ├─ exchange.html
+         │    ├─ history.html
+         │    ├─ login.html
+         │    ├─ result.html
+         │    └─ signup.html
+         └─ application.properties
 
 ## 今後の課題
  - API レート制限対策（キャッシュ強化）
  - グラフ表示（レート推移）
  - UI/UX 改善（Bootstrap 導入）
+ - 管理者画面の追加
  
 ---
 ## このアプリで学んだこと

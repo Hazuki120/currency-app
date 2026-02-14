@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * ・URL ごとのアクセス制御
  * ・ログイン/ログアウト設定
  * ・パスワードのハッシュ化方式
- * を定義している
+ * を定義する。
  */
 @Configuration
 public class SecurityConfig {
@@ -22,10 +22,10 @@ public class SecurityConfig {
 	 * セキュリティフィルタチェーンの設定
 	 * 
 	 * HttpSecurity を使って、
-	 * ・どの URL を許可するか
+	 * ・アクセス可能な URL の定義
 	 * ・ログイン成功後の遷移先
 	 * ・ログアウト後の遷移先
-	 * を定義する
+	 * を設定する。
 	 */
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -36,7 +36,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						// ログイン・サインアップ画面は未承認でもアクセス可能
 						.requestMatchers("/login", "/signup").permitAll()
-						// それ以外の URL はログイン必須
+						// それ以外は認証必須
 						.anyRequest().authenticated()
 				)
 				
