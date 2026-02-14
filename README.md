@@ -52,7 +52,6 @@ Controller → Service → Repository → MySQL
  
 ## 技術的な工夫
   
----
 ### ①  API 制限対策 
 
 １時間以内に取得済みのレートが存在する場合は外部 API を呼ばす、DB の値を利用。  
