@@ -22,6 +22,10 @@ Spring Boot の理解を深めるため、以下の要素を含む Web アプリ
  - 1時間以内のﾚｰﾄは再取得しない設計
  - 金額変換（例：USD → JPY）
  - ユーザーごとのレート履歴表示
+ - 管理者専用画面
+ 	- 全ユーザ一覧表示
+ 	- ユーザ削除（※管理者は削除不可）
+ 	- 全レート一覧表示・削除
  ---
  
 ## 使用技術
@@ -60,7 +64,6 @@ Controller → Service → Repository → MySQL
 ### ② ユーザ単位のデータ管理
 認証ユーザ名をキーとして保存することで、ユーザごとのデータ分離を実現。
 
----
 ### ③ Docker 環境での問題解決
 開発中に発生した問題：  
 ・Hibernate Dialect エラー  
@@ -68,8 +71,20 @@ Controller → Service → Repository → MySQL
 ・Maven parent POM 解決エラー  
 → ログ解析・ネットワーク理解により解決しました。  
  
----
+### ④ ロールベースアクセス制御
+Spring Security を用いて、
+ - `ROLE_USER`
+ - `ROLE_ADMIN`
+を実装。  
+管理者画面は`@PreAuthorize("hasRole('ADMIN')")` により保護。
 
+### ⑤ 管理者ユーザの自動生成
+`CommandLineRunner` を使用し、
+アプリ起動時に admin ユーザが存在しない場合のみ自動生成。  
+これにより、
+・初期ログイン可能
+・本番データ重複防止
+を実現。
 
 ## アプリ全体構成図
 
@@ -133,11 +148,14 @@ docker compose down
 ## API エンドポイント一覧
 | メソッド | パス | 説明 |
 |----------|------|------|
+| GET | /login | ログイン画面 |
+| GET | /signup | ユーザ登録画面 |
 | GET | /exchange | 通貨変換フォーム |
-| GET | /exchange/result | 変換結果表示 |
 | GET | /exchange/history | ユーザのレート履歴 |
-| GET | /latest | 最新レート取得 |
-| GET | /save | レート保存（内部用） |
+| GET | /admin/rates | 管理者全レート表示 |
+| POST | /admin/rates/delete | 管理者：レート削除 |
+| GET | /admin/users | 管理者：ユーザ一覧 |
+| POST | /admin/users/delete | 管理者：ユーザ削除 |
 
 ## ディレクトリ構成
 ```text
@@ -147,11 +165,14 @@ src/
      │   └─ com/example/exchange/  
      │        ├─ application/  
      │        │    ├─ controller/  
+     │        │    │    ├─ AdminController.java  
      │        │    │    ├─ CurrencyController.java  
      │        │    │    ├─ HistoryController.java  
      │        │    │    ├─ LoginController.java  
      │        │    │    └─ SignUpController.java  
      │        │    └─ config/  
+     │        │         ├─ CustmoLoginSuccessHandler.java  
+     │        │         └─ DataIntializer.java  
      │        │         └─ SecurityConfig.java  
      │        ├─ domain/  
      │        │    ├─ model/  
@@ -174,15 +195,18 @@ src/
          │    ├─ history.html  
          │    ├─ login.html  
          │    ├─ result.html  
-         │    └─ signup.html  
+         │    ├─ signup.html  
+         │    └─ admin  
+         │         ├─ rates.html  
+         │         └─ users.html  
          └─ application.properties  
 ```
 
 ## 今後の課題
  - API レート制限対策（キャッシュ強化）
  - グラフ表示（レート推移）
- - UI/UX 改善（Bootstrap 導入）
- - 管理者画面の追加
+ - 管理者画面の UI 改善
+ - 削除前確認ダイアログ追加
  
 ---
 ## このアプリで学んだこと

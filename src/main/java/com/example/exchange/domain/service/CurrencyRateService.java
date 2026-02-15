@@ -11,11 +11,16 @@ import com.example.exchange.domain.repository.CurrencyRateRepository;
  * 通貨レート履歴の取得を担当するサービス
  * 
  * Controller からの要求に応じて、
- * ユーザごとの履歴取得処理を Repository に委譲する。
+ * データ取得・削除などの処理をリポシトリへ委譲する。
+ * 
+ * 本クラスはビジネスロジック層として位置付けており、
+ * コントローラにはデータアクセス処理を直接記述しない設計とすることで、
+ * 責務分離を意識している。
  */
 @Service
 public class CurrencyRateService {
 
+	/** 通貨レートデータアクセスを担当する */
 	private final CurrencyRateRepository repository;
 	
 	/** コンストラクタインジェクション */
@@ -32,4 +37,25 @@ public class CurrencyRateService {
 	public List<CurrencyRate> getRatesByUsername(String username){
 		return repository.findByUsernameOrderByFetchedAtDesc(username);
 		}
+
+	/**
+	 * 全ユーザのレート履歴を取得する。
+	 * 主に管理者画面で使用する。
+	 * 
+	 * @return 全レート一覧
+	 */
+	public List<CurrencyRate> findAll(){
+		return repository.findAll();
+	}
+	
+	/**
+	 * 指定 ID のレート情報を削除。
+	 * 削除可否の業務ルールが追加された場合は
+	 * 本サービス層に実装することを想定している。
+	 * 
+	 * @param id 削除対象レート ID
+	 */
+	public void deleteById(Long id) {
+		repository.deleteById(id);
+	}
 }

@@ -2,6 +2,7 @@ package com.example.exchange.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * を定義する。
  */
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
 	/**
@@ -46,9 +48,7 @@ public class SecurityConfig {
 				.formLogin(login -> login
 						// 独自ログインページを使用
 						.loginPage("/login")
-						// ログイン成功時は 常に /exchange へ遷移
-						// （true を外すと「元のページに戻る」挙動になる）
-						.defaultSuccessUrl("/exchange", true)
+						.successHandler(new CustomLoginSuccessHandler())
 						.permitAll()
 				)
 				
