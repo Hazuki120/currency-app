@@ -1,5 +1,7 @@
 package com.example.exchange.domain.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -61,7 +63,10 @@ public class CurrencyConversionService {
 			String target,
 			double rate,
 			double amount) {
-		double converted = amount * rate;
+		BigDecimal bdAmount = BigDecimal.valueOf(amount);
+		BigDecimal bdRate = BigDecimal.valueOf(rate);
+		
+		BigDecimal converted = bdAmount.multiply(bdRate).setScale(2, RoundingMode.HALF_UP);
 
 		CurrencyRate entity = new CurrencyRate(
 				username,
@@ -69,7 +74,7 @@ public class CurrencyConversionService {
 				target,
 				rate,
 				amount,
-				converted,
+				converted.doubleValue(),	// ← BigDecimal → double に変換
 				LocalDateTime.now()
 		);
 		

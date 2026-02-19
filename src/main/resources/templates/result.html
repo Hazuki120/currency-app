@@ -25,12 +25,12 @@
 	<!-- 変換結果表示 -->
 	<h1>変換結果</h1>
 	<p>
-		<span th:text="${amount}"></span>
+		<span th:text="${#numbers.formatDecimal(amount, 1, 'COMMA', 2, 'POINT')}"></span>
 		<span th:text="${base}"></span>
 		→
 		<span th:text="${target}"></span>
 		=
-		<strong th:text="${result}"></strong>
+		<strong th:text="${#numbers.formatDecimal(result, 1, 'COMMA', 2, 'POINT')}"></strong>
 	</p>
 
 	<!-- 入力画面へ戻るリンク -->

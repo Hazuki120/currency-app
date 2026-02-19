@@ -40,9 +40,9 @@
 				<td th:text="${rate.username}"></td>
 				<td th:text="${rate.baseCurrency}"></td>
 				<td th:text="${rate.targetCurrency}"></td>
-				<td th:text="${rate.rate}"></td>
-				<td th:text="${rate.amount}"></td>
-				<td th:text="${rate.convertedAmount}"></td>
+				<td th:text="${#numbers.formatDecimal(rate.rate, 1, 'COMMA', 4, 'POINT')}"></td>
+				<td th:text="${#numbers.formatDecimal(rate.amount, 1, 'COMMA', 2, 'POINT')}"></td>
+				<td th:text="${#numbers.formatDecimal(rate.convertedAmount, 1, 'COMMA', 2, 'POINT')}"></td>
 				<td th:text="${#temporals.format(rate.fetchedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
 				<td>
 					<form th:action="@{/admin/rates/delete}" method="post">
