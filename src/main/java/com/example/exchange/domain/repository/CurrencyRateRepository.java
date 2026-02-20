@@ -3,6 +3,8 @@ package com.example.exchange.domain.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.exchange.domain.model.CurrencyRate;
@@ -21,8 +23,7 @@ public interface CurrencyRateRepository extends JpaRepository<CurrencyRate, Long
 	 * @param username ユーザ名
 	 * @return レート履歴のリスト
 	 */
-	List<CurrencyRate> findByUsernameOrderByFetchedAtDesc(String username);
-	
+	Page<CurrencyRate>findByUsernameOrderByFetchedAtDesc(String username, Pageable pageable);
 	/** 
 	 * 指定ユーザ・通貨ペアの最新レートを取得
 	 * 
@@ -36,5 +37,7 @@ public interface CurrencyRateRepository extends JpaRepository<CurrencyRate, Long
 			String username,
 			String baseCurrency,
 			String targetCurrency);
+	
+	List<CurrencyRate>findByUsernameAndDeletedFalseOrderByFetchedAtDesc(String username);
 
 }

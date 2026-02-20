@@ -1,12 +1,12 @@
 package com.example.exchange.application.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.exchange.domain.model.CurrencyRate;
 import com.example.exchange.domain.service.CurrencyRateService;
@@ -40,12 +40,12 @@ public class HistoryController {
     @GetMapping("/exchange/history")
     public String showHistory(
     		@AuthenticationPrincipal UserDetails user,
+    		@RequestParam(defaultValue = "0") int page,
     		Model model) {
     	
     	String username = user.getUsername();
     	
-    	// ユーザごとの履歴を取得
-    	List<CurrencyRate> rates = rateService.getRatesByUsername(username);
+    	Page<CurrencyRate> rates = rateService.getRatesByUsername(username, page, 10);
     	
     	// 画面へ渡す
     	model.addAttribute("rates", rates);

@@ -1,5 +1,6 @@
 package com.example.exchange.infrastructure.api;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +13,7 @@ public class CurrencyRateApiClient {
 	@Value("${exchange.api.key}")
 	private String apiKey;
 	private final RestTemplate restTemplate = new RestTemplate();
-	public double getRate(String base, String target) {
+	public BigDecimal getRate(String base, String target) {
 		String url = UriComponentsBuilder
 				.fromUriString("https://api.exchangerate.host/convert")
 				.queryParam("access_key", apiKey)
@@ -28,6 +29,6 @@ public class CurrencyRateApiClient {
 		if(result == null) {
 			throw new IllegalStateException("API returned no result:" + response);
 		}
-		return ((Number) result).doubleValue();
+		return new BigDecimal(result.toString());
 	}
 }

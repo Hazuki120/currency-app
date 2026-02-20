@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" 
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
 	<meta charset="UTF-8">
@@ -88,6 +89,15 @@
 			</tr>
 		</tbody>
 	</table>
+	<div>
+		<span th:if="${rates.hasPrevious()}">
+			<a th:href="@{/exchange/history(page=${rates.number - 1})}">前へ</a>
+		</span>
+		<span>ページ[[${rates.number + 1}]] / [[${rates.totalPages}]]</span>
+		<span th:if="${rates.hasNext()}">
+			<a th:href="@{/exchange/history(page=${rates.number + 1})}">次へ</a>
+		</span>
+	</div>
 </body>
 
 </html>

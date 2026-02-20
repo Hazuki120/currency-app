@@ -3,8 +3,11 @@ package com.example.exchange.domain.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.exchange.domain.model.CurrencyRate;
@@ -40,10 +43,10 @@ public class CurrencyConversionService {
 	 * 外部 API から最新レートを取得する
 	 * 
 	 * @param base 基準通貨
-	 * @param target 対象通k
+	 * @param target 対象通貨
 	 * @return 最新レート
 	 */
-	public double fetchRateFromApi(String base, String target) {
+	public BigDecimal fetchRateFromApi(String base, String target) {
 		return apiClient.getRate(base, target);
 	}
 
@@ -61,20 +64,21 @@ public class CurrencyConversionService {
 			String username,
 			String base,
 			String target,
-			double rate,
-			double amount) {
-		BigDecimal bdAmount = BigDecimal.valueOf(amount);
-		BigDecimal bdRate = BigDecimal.valueOf(rate);
+			BigDecimal rate,
+			BigDecimal amount) {
 		
-		BigDecimal converted = bdAmount.multiply(bdRate).setScale(2, RoundingMode.HALF_UP);
+		// DB に保存するレートを必ず同じ制度にするため↓
+		BigDecimal normalizedRate = rate.setScale(4, RoundingMode.HALF_UP);
+		BigDecimal normalizedAmount = amount.setScale(2, RoundingMode.HALF_UP);
+		BigDecimal converted = normalizedAmount.multiply(normalizedRate).setScale(2, RoundingMode.HALF_UP);
 
 		CurrencyRate entity = new CurrencyRate(
 				username,
 				base,
 				target,
-				rate,
-				amount,
-				converted.doubleValue(),	// ← BigDecimal → double に変換
+				normalizedRate,
+				normalizedAmount,
+				converted,
 				LocalDateTime.now()
 		);
 		
@@ -87,8 +91,9 @@ public class CurrencyConversionService {
 	 * @param username ユーザ名
 	 * @return レート履歴リスト
 	 */
-	public List<CurrencyRate> getAllRates(String username){
-		return rateRepository.findByUsernameOrderByFetchedAtDesc(username);
+	public Page<CurrencyRate> getActiveRatesByUsername(String username, int page, int size){
+		Pageable pageable = PageRequest.of(page, size, Sort.by("fetchedAt").descending());
+		return rateRepository.findByUsernameOrderByFetchedAtDesc(username, pageable);
 	}
 
 	/**
@@ -113,14 +118,14 @@ public class CurrencyConversionService {
 	 * 
 	 * @return 変換後の金額
 	 */
-	public double convert(
+	public BigDecimal convert(
 			String username,
-			double amount,
+			BigDecimal amount,
 			String base,
 			String target) {
 
 		CurrencyRate latest = getLatestRate(username, base, target);
-		double rate;
+		BigDecimal rate;
 
 		// DB レートが存在しない or 1時間以上経過
 		if (latest == null || isExpired(latest)) {

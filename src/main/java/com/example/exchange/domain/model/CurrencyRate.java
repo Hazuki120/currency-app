@@ -1,5 +1,6 @@
 package com.example.exchange.domain.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -9,12 +10,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 通貨レート履歴を保存するエンティティ
  * 1回の変換処理につき1レコード保存される。
  */
 @Entity
 @Table(name = "currency_rate")
+@Getter
+@Setter
 public class CurrencyRate {
 	/** 主キー（自動採番）  */
 	@Id
@@ -34,20 +40,23 @@ public class CurrencyRate {
 	private String targetCurrency;
 	
 	/** 1単位当たりのレート（例：１USD = 153.6 JPY) */
-	@Column(nullable = false)
-	private double rate;
+	@Column(nullable = false, precision = 18, scale = 4)
+	private BigDecimal rate;
 	
 	/** レートを取得した日時（API呼び出し時刻） */
 	@Column(nullable = false)
 	private LocalDateTime fetchedAt;
 	
 	/** ユーザが変換した元の金額（例：100 USD) */
-	@Column(nullable = false)
-	private double amount;
+	@Column(nullable = false, precision = 18, scale = 2)
+	private BigDecimal amount;
 	
 	/**  変換後の金額（例：100 USD → 15361 JPY） */
+	@Column(nullable = false, precision = 18, scale = 2)
+	private BigDecimal convertedAmount;
+	
 	@Column(nullable = false)
-	private double convertedAmount;
+	private boolean deleted = false;
 	
 	/** JPA 用のデフォルトコンストラクタ */
 	public CurrencyRate() {}
@@ -67,9 +76,9 @@ public class CurrencyRate {
 			String username,
 			String baseCurrency,
 			String targetCurrency,
-			double rate,
-			double amount,
-			double convertedAmount,
+			BigDecimal rate,
+			BigDecimal amount,
+			BigDecimal convertedAmount,
 			LocalDateTime fetchedAt) {
 		
 		this.username = username;
@@ -81,30 +90,8 @@ public class CurrencyRate {
 		this.fetchedAt = fetchedAt;
 	}
 	
-	// Getter(値を取得するためのメソッド）
-	public Long getId() {
-		return id;
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
 	}
-	public String getUsername() {
-		return username;
-	}
-	public String getBaseCurrency() {
-		return baseCurrency;
-	}
-	public String getTargetCurrency() {
-		return targetCurrency;
-	}
-	public double getRate() {
-		return rate;
-	}
-	public double getAmount() {
-		return amount;
-	}
-	public double getConvertedAmount() {
-		return convertedAmount;
-	}
-	public LocalDateTime getFetchedAt() {
-		return fetchedAt;
-	}
-
+	
 }

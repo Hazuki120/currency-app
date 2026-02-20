@@ -1,14 +1,16 @@
 package com.example.exchange.application.controller;
 
+import java.math.BigDecimal;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.exchange.domain.model.CurrencyRate;
 import com.example.exchange.domain.service.CurrencyConversionService;
 
 
@@ -26,32 +28,11 @@ public class CurrencyController {
 	}
 	
 	/**
-	 * 外部 API からレートを取得し、DBに保存する
-	 */
-	@PostMapping("/save")
-	public String save(
-			@AuthenticationPrincipal UserDetails user,
-			@RequestParam String base, 
-			@RequestParam String target, 
-			@RequestParam double amount) {
-		
-		String username = user.getUsername();
-		
-		// 外部 API からレートを取得
-		double rate = currencyService.fetchRateFromApi(base, target);
-		
-		// DB へ保存
-		currencyService.saveRate(username, base, target, rate, amount);
-		
-		return "redirect:/exchange";
-	}
-	
-	/**
 	 * 最新レートを取得（API 用）
 	 */
 	@GetMapping("/latest")
 	@ResponseBody
-	public Object getLatest(
+	public CurrencyRate getLatest(
 			@AuthenticationPrincipal UserDetails user,
 			@RequestParam String base,
 			@RequestParam String target) {
@@ -65,9 +46,9 @@ public class CurrencyController {
 	 */
 	@GetMapping("/convert")
 	@ResponseBody
-	public double convert(
+	public BigDecimal convert(
 			@AuthenticationPrincipal UserDetails user,
-			@RequestParam double amount,
+			@RequestParam BigDecimal amount,
 			@RequestParam String base,
 			@RequestParam String target) {
 		
@@ -89,7 +70,7 @@ public class CurrencyController {
 	@GetMapping("/exchange/result")
 	public String showResult(
 			@AuthenticationPrincipal UserDetails user,
-			@RequestParam double amount,
+			@RequestParam BigDecimal amount,
 			@RequestParam String base,
 			@RequestParam String target,
 			Model model) {
@@ -97,7 +78,7 @@ public class CurrencyController {
 		String username = user.getUsername();
 		
 		// 変換処理
-		double result = currencyService.convert(username, amount, base, target);
+		BigDecimal result = currencyService.convert(username, amount, base, target);
 		
 		// 画面へ値を渡す
 		model.addAttribute("amount", amount);
