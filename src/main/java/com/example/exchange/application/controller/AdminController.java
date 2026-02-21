@@ -1,5 +1,9 @@
 package com.example.exchange.application.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.exchange.domain.model.CurrencyRate;
 import com.example.exchange.domain.service.CurrencyRateService;
 import com.example.exchange.domain.service.UserService;
 
@@ -57,8 +62,15 @@ public class AdminController {
 	 * @return 表示テンプレート名
 	 */
 	@GetMapping("/rates")
-	public String allRates(Model model) {
-		model.addAttribute("rates", rateService.findAll());
+	public String allRates(
+			@RequestParam(defaultValue = "0")int page,
+			@RequestParam(defaultValue = "10")int size,
+			Model model) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+		Page<CurrencyRate> ratePage = rateService.findAll(pageable);
+		
+		model.addAttribute("ratePage", ratePage);
+		model.addAttribute("rates", ratePage.getContent());
 		return "admin/rates";
 	}
 	

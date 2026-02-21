@@ -1,6 +1,5 @@
 package com.example.exchange.domain.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -37,7 +36,5 @@ public interface CurrencyRateRepository extends JpaRepository<CurrencyRate, Long
 			String username,
 			String baseCurrency,
 			String targetCurrency);
-	
-	List<CurrencyRate>findByUsernameAndDeletedFalseOrderByFetchedAtDesc(String username);
 
 }

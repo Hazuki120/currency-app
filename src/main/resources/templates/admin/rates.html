@@ -51,6 +51,15 @@
 			</tr>
 		</tbody>
 	</table>
+	<div>
+		<span th:if="${ratePage.hasPrevious()}">
+			<a th:href="@{/adomin/rates(page=${ratePage.number - 1})}">前へ</a>
+		</span>
+		<span>ページ[[${ratePage.number + 1}]] / [[${ratePage.totalPages}]]</span>
+		<span th:if="${ratePage.hasNext()}">
+			<a th:href="@{/admin/rates(page=${ratePage.number + 1})}">次へ</a>
+		</span>
+	</div>
 
 </body>
 

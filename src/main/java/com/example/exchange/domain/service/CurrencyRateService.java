@@ -1,7 +1,5 @@
 package com.example.exchange.domain.service;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,8 +48,8 @@ public class CurrencyRateService {
 	 * 
 	 * @return 全レート一覧
 	 */
-	public List<CurrencyRate> findAll(){
-		return rateRepository.findAll();
+	public Page<CurrencyRate> findAll(Pageable pageable){
+		return rateRepository.findAll(pageable);
 	}
 	
 	/**
