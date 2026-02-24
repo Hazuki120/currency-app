@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
 
 /**
  * ログイン成功時の遷移先を制御するクラス。
@@ -17,9 +18,10 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
  * 
  * 本クラスでは、ユーザの権限（ROLE）を判定し、
  * ・ADMIN → 管理者画面
- * ・USER  → 中将ユーザ画面
+ * ・USER  → 通常ユーザ画面
  * へ分岐させることで、ロールベースの画面制御を実現している。
  */
+@Component
 public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 	
 	/**

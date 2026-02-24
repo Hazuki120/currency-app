@@ -22,7 +22,7 @@ import com.example.exchange.domain.service.UserService;
  * ・レートの全件表示/削除
  * ・ユーザ一覧表示/削除
  * 
- * 本クラスでは画面性のみを担当し、
+ * 本クラスでは画面表示のみを担当し、
  * 実際のビジネスロジック（削除処理など）は Service 層へ委譲している。
  * 
  * また、@PreAuthorize により ADMIN 権限を持つユーザのみ
@@ -34,11 +34,11 @@ import com.example.exchange.domain.service.UserService;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
-	/** レート関連の行処理を担当する */
-	private CurrencyRateService rateService;
+	/** レート関連の業務処理を担当する */
+	private final CurrencyRateService rateService;
 	
 	/** ユーザ管理関連の業務処理を担当する */
-	private UserService userService;
+	private final UserService userService;
 	
 	/**
 	 * コンストラクタインジェクション
@@ -46,7 +46,9 @@ public class AdminController {
 	 * ・テスト容易性の向上
 	 * ・依存関係の明確化
 	 * を意識している。
-	 * @param userService
+	 * 
+	 * @param rateService レート関連の業務処理
+	 * @param userService ユーザ管理関連の業務処理
 	 */
 	public AdminController(CurrencyRateService rateService,
 							UserService userService) {
@@ -58,6 +60,10 @@ public class AdminController {
 	 * 全ユーザの通貨レート履歴を表示する。
 	 * 管理者は全データを閲覧可能とする。
 	 * 
+	 * ページ番号・表示件数を受け取り、作成日時で並べ替えて取得する
+	 * 
+	 * @param page ページ番号
+	 * @param size 1ページの表示件数
 	 * @param model 画面へ値を渡すための Model
 	 * @return 表示テンプレート名
 	 */

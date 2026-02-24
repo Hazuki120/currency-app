@@ -15,12 +15,16 @@ import com.example.exchange.domain.service.CurrencyConversionService;
 
 
 /**
- * 通貨返還に関するリクエストを処理するコントローラ
+ * 通貨変換に関するリクエストを処理するコントローラ
  */
 @Controller
 public class CurrencyController {
 	
-	// 通貨変換サービス（DI）
+	private String username(UserDetails user) {
+		return user.getUsername();
+	}
+	
+	/** 通貨変換に関する業務処理を担当する */
 	private final CurrencyConversionService currencyService;
 	
 	public CurrencyController(CurrencyConversionService currencyService) {
@@ -28,7 +32,13 @@ public class CurrencyController {
 	}
 	
 	/**
-	 * 最新レートを取得（API 用）
+	 * 最新レートを取得する API
+	 * ログインユーザに紐づく最新レートを取得する。
+	 * 
+	 * @param user ログインユーザ
+	 * @param base 基準通貨
+	 * @param target 対象通貨
+	 * @return 最新の通貨レート
 	 */
 	@GetMapping("/latest")
 	@ResponseBody
@@ -37,12 +47,18 @@ public class CurrencyController {
 			@RequestParam String base,
 			@RequestParam String target) {
 		
-		String username = user.getUsername();
-		return currencyService.getLatestRate(username, base, target);
+		return currencyService.getLatestRate(username(user), base, target);
 	}
 	
 	/**
-	 * 金額を変換する（API 用）
+	 * 金額を通貨変換する API
+	 * ログインユーザに紐づくレートを使用して変換する。
+	 * 
+	 * @param user ログインユーザ
+	 * @param amount 変換金額
+	 * @param base 基準通貨
+	 * @param target 対象通貨
+	 * @return 変換後金額
 	 */
 	@GetMapping("/convert")
 	@ResponseBody
@@ -51,13 +67,14 @@ public class CurrencyController {
 			@RequestParam BigDecimal amount,
 			@RequestParam String base,
 			@RequestParam String target) {
-		
-		String username = user.getUsername();
-		return currencyService.convert(username, amount, base, target);
+
+		return currencyService.convert(username(user), amount, base, target);
 	}
 	
 	/**
 	 * 通貨変換フォーム画面表示
+	 *  
+	 * @return 通貨変換フォームテンプレート
 	 */
 	@GetMapping("/exchange")
 	public String showForm() {
@@ -65,7 +82,16 @@ public class CurrencyController {
 	}
 	
 	/**
-	 * 通貨変換結果画面表示
+	 * 通貨変換結果画面を表示する。
+	 * リクエストパラメータを元に再度変換処理を実行し、
+	 * 結果を画面へ表示する
+	 * 
+	 * @param user ログインユーザ
+	 * @param amount 変換金額
+	 * @param base 基準通貨
+	 * @param target 対象通貨
+	 * @param model 画面へ値を渡す
+	 * @return 結果画面テンプレート
 	 */
 	@GetMapping("/exchange/result")
 	public String showResult(
@@ -75,10 +101,8 @@ public class CurrencyController {
 			@RequestParam String target,
 			Model model) {
 		
-		String username = user.getUsername();
-		
 		// 変換処理
-		BigDecimal result = currencyService.convert(username, amount, base, target);
+		BigDecimal result = currencyService.convert(username(user), amount, base, target);
 		
 		// 画面へ値を渡す
 		model.addAttribute("amount", amount);

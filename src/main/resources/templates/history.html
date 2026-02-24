@@ -79,7 +79,7 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 		</thead>
 		<tbody>
 			<tr th:each="rate, stat : ${rates}">
-				<td th:text="${stat.index + 1}"></td>
+				<td th:text="${rates.number * rates.size + stat.index + 1}"></td>
 				<td th:text="${rate.baseCurrency}"></td>
 				<td th:text="${rate.targetCurrency}"></td>
 				<td th:text="${#numbers.formatDecimal(rate.rate, 1, 'COMMA', 4, 'POINT')}"></td>

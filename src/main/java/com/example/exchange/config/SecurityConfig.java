@@ -19,6 +19,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+	
+	private final CustomLoginSuccessHandler successHandler;
+	
+	public SecurityConfig(CustomLoginSuccessHandler successHandler) {
+		this.successHandler = successHandler;
+	}
 
 	/**
 	 * セキュリティフィルタチェーンの設定
@@ -48,7 +54,7 @@ public class SecurityConfig {
 				.formLogin(login -> login
 						// 独自ログインページを使用
 						.loginPage("/login")
-						.successHandler(new CustomLoginSuccessHandler())
+						.successHandler(successHandler)
 						.permitAll()
 				)
 				
