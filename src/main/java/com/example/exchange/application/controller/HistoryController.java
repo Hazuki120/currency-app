@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.exchange.domain.model.CurrencyRate;
+import com.example.exchange.application.dto.CurrencyRateDto;
 import com.example.exchange.domain.service.CurrencyRateService;
 
 /**
@@ -45,7 +45,7 @@ public class HistoryController {
     	
     	String username = user.getUsername();
     	
-    	Page<CurrencyRate> rates = rateService.getRatesByUsername(username, page, 10);
+    	Page<CurrencyRateDto> rates = rateService.getRatesDto(username, page, 10);
     	
     	// 画面へ渡す
     	model.addAttribute("rates", rates);

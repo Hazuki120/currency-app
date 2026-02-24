@@ -6,18 +6,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.example.exchange.application.dto.CurrencyRateDto;
+import com.example.exchange.application.mapper.CurrencyRateMapper;
 import com.example.exchange.domain.model.CurrencyRate;
 import com.example.exchange.domain.repository.CurrencyRateRepository;
 
 /**
  * 通貨レート履歴の取得を担当するサービス
  * 
- * Controller からの要求に応じて、
- * データ取得・削除などの処理をリポシトリへ委譲する。
+ * このクラスはビジネスロジック層として、
+ * Repository からデータを取得する
+ * Entity → DTO へ変換する
  * 
- * 本クラスはビジネスロジック層として位置付けており、
- * コントローラにはデータアクセス処理を直接記述しない設計とすることで、
- * 責務分離を意識している。
+ * Controller は DTO のみ扱う設計とし、Entity を外部へ直接公開しない。
  */
 @Service
 public class CurrencyRateService {
@@ -25,31 +26,50 @@ public class CurrencyRateService {
 	/** 通貨レートデータアクセスを担当する */
 	private final CurrencyRateRepository rateRepository;
 	
+	private final CurrencyRateMapper mapper;
+	
 	/** コンストラクタインジェクション */
-	public CurrencyRateService(CurrencyRateRepository repository) {
+	public CurrencyRateService(CurrencyRateRepository repository, CurrencyRateMapper mapper) {
 		this.rateRepository = repository;
+		this.mapper = mapper;
 	}
 	
 	/**
 	 * 指定したユーザのレート履歴を取得（新しい順）
 	 * 
 	 * @param username ユーザ名
-	 * @return レート履歴リスト
+	 * @param page ページ番号
+	 * @param size 件数
+	 * @return Entity ページ
 	 */
 	public Page<CurrencyRate> getRatesByUsername(String username, int page, int size){
 		Pageable pageable = PageRequest.of(page, size, Sort.by("fetchedAt").descending());
 		
 		return rateRepository.findByUsernameOrderByFetchedAtDesc(username, pageable);
 		}
+	
+	/**
+	 * 指定ユーザのレート履歴を DTO で取得
+	 * 
+	 * @param username ユーザ名
+	 * @param page ページ番号
+	 * @param size 件数
+	 * @return DTO ページ
+	 */
+	public Page<CurrencyRateDto> getRatesDto(String username, int page, int size){
+		Page<CurrencyRate> entityPage = getRatesByUsername(username, page, size);
+		
+		return entityPage.map(mapper::toDto);
+		}
 
 	/**
-	 * 全ユーザのレート履歴を取得する。
-	 * 主に管理者画面で使用する。
+	 * 全ユーザのレート履歴を取得（管理者用）
 	 * 
-	 * @return 全レート一覧
+	 * @param pageable ページ情報
+	 * @return 全レート
 	 */
-	public Page<CurrencyRate> findAll(Pageable pageable){
-		return rateRepository.findAll(pageable);
+	public Page<CurrencyRateDto> findAllDto(Pageable pageable){
+		return rateRepository.findAll(pageable).map(mapper::toDto);
 	}
 	
 	/**

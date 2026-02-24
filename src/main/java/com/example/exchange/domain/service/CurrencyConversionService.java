@@ -151,5 +151,25 @@ public class CurrencyConversionService {
 		return rate.getFetchedAt()
 				.isBefore(LocalDateTime.now().minusHours(1));
 	}
+	
+	private CurrencyRate convertInternal(String username,
+			BigDecimal amount, String base, String target) {
+		
+		CurrencyRate latest = getLatestRate(username, base, target);
+		BigDecimal rate;
+		
+		if(latest == null || isExpired(latest)) {
+			rate = fetchRateFromApi(base, target);
+		}else {
+			rate = latest.getRate();
+		}
+		
+		return saveRate(username, base, target, rate, amount);
+	}
+	
+	public CurrencyRate convertWithEntity(String username,
+			BigDecimal amount, String base, String target) {
+		return convertInternal(username, amount, base, target);
+	}
 
 }

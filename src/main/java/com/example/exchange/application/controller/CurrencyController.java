@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.exchange.application.dto.ConvertResponseDto;
+import com.example.exchange.application.dto.CurrencyRateDto;
+import com.example.exchange.application.mapper.CurrencyRateMapper;
 import com.example.exchange.domain.model.CurrencyRate;
 import com.example.exchange.domain.service.CurrencyConversionService;
 
@@ -20,6 +23,9 @@ import com.example.exchange.domain.service.CurrencyConversionService;
 @Controller
 public class CurrencyController {
 	
+	/**
+	 * SpringSecurity の UserDetails から username を取り出すヘルパー
+	 */
 	private String username(UserDetails user) {
 		return user.getUsername();
 	}
@@ -27,8 +33,12 @@ public class CurrencyController {
 	/** 通貨変換に関する業務処理を担当する */
 	private final CurrencyConversionService currencyService;
 	
-	public CurrencyController(CurrencyConversionService currencyService) {
+	/** Entity → DTO 変換を担当する Mapper */
+	private final CurrencyRateMapper mapper;
+	
+	public CurrencyController(CurrencyConversionService currencyService, CurrencyRateMapper mapper) {
 		this.currencyService = currencyService;
+		this.mapper = mapper;
 	}
 	
 	/**
@@ -42,17 +52,25 @@ public class CurrencyController {
 	 */
 	@GetMapping("/latest")
 	@ResponseBody
-	public CurrencyRate getLatest(
+	public CurrencyRateDto getLatest(
 			@AuthenticationPrincipal UserDetails user,
 			@RequestParam String base,
 			@RequestParam String target) {
 		
-		return currencyService.getLatestRate(username(user), base, target);
+		// 最新レート取得
+		CurrencyRate rate = currencyService.getLatestRate(username(user), base, target);
+		
+		// レートが存在しない場合は null
+		if(rate == null) {
+			return null;
+		}
+		
+		// DTO へ変換して返却
+		return mapper.toLatestDto(rate);
 	}
 	
 	/**
 	 * 金額を通貨変換する API
-	 * ログインユーザに紐づくレートを使用して変換する。
 	 * 
 	 * @param user ログインユーザ
 	 * @param amount 変換金額
@@ -62,13 +80,17 @@ public class CurrencyController {
 	 */
 	@GetMapping("/convert")
 	@ResponseBody
-	public BigDecimal convert(
+	public ConvertResponseDto convert(
 			@AuthenticationPrincipal UserDetails user,
 			@RequestParam BigDecimal amount,
 			@RequestParam String base,
 			@RequestParam String target) {
 
-		return currencyService.convert(username(user), amount, base, target);
+		// Sevice で変換＋保存
+		CurrencyRate rate = currencyService.convertWithEntity(username(user), amount, base, target);
+		
+		// API 用 DTO へ変換して返す
+		return mapper.toConvertDto(rate);
 	}
 	
 	/**
