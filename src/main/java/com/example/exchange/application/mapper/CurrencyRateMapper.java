@@ -57,4 +57,6 @@ public class CurrencyRateMapper {
 				e.getRate().toPlainString(),
 				e.getFetchedAt().format(F));
 	}
+	
+	// HistoryDto 書く
 }
