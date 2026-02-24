@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org" 
-xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
 	<meta charset="UTF-8">
@@ -46,6 +45,7 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 			margin-bottom: 10px;
 			font-weight: bold;
 		}
+		
 	</style>
 </head>
 
@@ -75,6 +75,7 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 				<th>変換前の金額</th>
 				<th>変換後の金額</th>
 				<th>取得日時</th>
+				<th>操作</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -85,7 +86,13 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 				<td th:text="${#numbers.formatDecimal(rate.rate, 1, 'COMMA', 4, 'POINT')}"></td>
 				<td th:text="${#numbers.formatDecimal(rate.amount, 1, 'COMMA', 2, 'POINT')}"></td>
 				<td th:text="${#numbers.formatDecimal(rate.convertedAmount, 1, 'COMMA', 2, 'POINT')}"></td>
-				<td th:text="${#temporals.format(rate.fetchedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+				<td th:text="${rate.fetchedAtText}"></td>
+				<td>
+					<form th:action="@{/exchange/history/delete}" method="post">
+						<input type="hidden" name="id" th:value="${rate.id}">
+						<button type="submit" onclick="return confirm('本当に削除しますか？');">削除</button>
+					</form>
+				</td>
 			</tr>
 		</tbody>
 	</table>

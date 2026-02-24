@@ -19,14 +19,17 @@ import com.example.exchange.domain.service.UserService;
 /**
  * 管理者専用機能を提供するコントローラ。
  * 
- * ・レートの全件表示/削除
- * ・ユーザ一覧表示/削除
+ * 提供機能：
+ * ・全ユーザのレート履歴一覧表示
+ * ・レートの論理削除
+ * ・レートの完全削除（物理削除）
+ * ・ユーザ一覧表示
+ * ・ユーザ削除
  * 
- * 本クラスでは画面表示のみを担当し、
- * 実際のビジネスロジック（削除処理など）は Service 層へ委譲している。
+ * Controller は画面遷移・Model への値設定のみを担当し、
+ * 実際の削除処理などのビジネスロジックは Service層へ委譲する。
  * 
- * また、@PreAuthorize により ADMIN 権限を持つユーザのみ
- * アクセス可能とすることで、メソッド単位の認可制御を実現している。
+ * @PreAuthorize により ADMIN 権限を持つユーザのみアクセス可能。
  * 
  */
 @Controller
@@ -42,13 +45,7 @@ public class AdminController {
 	
 	/**
 	 * コンストラクタインジェクション
-	 * フィールドインジェクションではなく、コンストラクタインジェクションを採用
-	 * ・テスト容易性の向上
-	 * ・依存関係の明確化
-	 * を意識している。
-	 * 
-	 * @param rateService レート関連の業務処理
-	 * @param userService ユーザ管理関連の業務処理
+	 * 依存関係を明確にし、テスト容易性を高めるために採用。
 	 */
 	public AdminController(CurrencyRateService rateService,
 							UserService userService) {
@@ -58,14 +55,13 @@ public class AdminController {
 	
 	/**
 	 * 全ユーザの通貨レート履歴を表示する。
-	 * 管理者は全データを閲覧可能とする。
-	 * 
-	 * ページ番号・表示件数を受け取り、作成日時で並べ替えて取得する
+	 * 管理者は論理削除済みも含めて全件閲覧可能。
+	 * ページング・並び順（ID 降順）を指定して取得する。
 	 * 
 	 * @param page ページ番号
-	 * @param size 1ページの表示件数
+	 * @param size 1ページあたりの件数
 	 * @param model 画面へ値を渡すための Model
-	 * @return 表示テンプレート名
+	 * @return admin/rates.html
 	 */
 	@GetMapping("/rates")
 	public String allRates(
@@ -81,15 +77,32 @@ public class AdminController {
 	}
 	
 	/**
-	 * レート削除処理。
-	 * 削除ロジックはサービス層に委譲している。
+	 * レート履歴の論理削除（管理者による削除）
 	 * 
-	 * @param id 削除対象レートの ID
-	 * @return 一覧画面へのリダイレクト
+	 * 削除者は”ADMIN”として記録される。
+	 * 実際の削除処理は CurrencyRateService に委譲。
+	 * 
+	 * @param id 削除対象レート ID
+	 * @return レート一覧画面へリダイレクト
 	 */
 	@PostMapping("/rates/delete")
 	public String deleteRate(@RequestParam Long id) {
-		rateService.deleteById(id);
+		rateService.deleteById(id, "ADMIN");
+		return "redirect:/admin/rates";
+	}
+	
+	/**
+	 * レート履歴の完全削除（物理削除）
+	 * 
+	 * 論理削除済みのデータを DB から完全に削除する。
+	 * 管理者のみ実行可能。
+	 * 
+	 * @param id 完全削除対象レート ID
+	 * @return レート一覧画面へリダイレクト
+	 */
+	@PostMapping("/rates/hard-delete")
+	public String hardDelete(@RequestParam Long id) {
+		rateService.hardDelete(id);
 		return "redirect:/admin/rates";
 	}
 	
@@ -97,7 +110,7 @@ public class AdminController {
 	 * 全ユーザ一覧を表示する。
 	 * 
 	 * @param model 画面へ値を渡すための Model
-	 * @return 表示テンプレート名
+	 * @return admin/users.html
 	 */
 	@GetMapping("/users")
 	public String showUsers(Model model){
@@ -107,7 +120,7 @@ public class AdminController {
 	
 	/**
 	 * ユーザ削除処理。
-	 * 管理者削除不可などの業務ルールはサービス側で制御している。
+	 * 管理者削除不可などの業務ルール UserService で制御している。
 	 * 
 	 * @param id 削除対象ユーザ ID
 	 * @return 一覧画面へリダイレクト
@@ -117,4 +130,5 @@ public class AdminController {
 		userService.deleteById(id);
 		return "redirect:/admin/users";
 	}
+	
 }

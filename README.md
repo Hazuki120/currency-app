@@ -8,24 +8,36 @@ Spring Boot を中心に、認証・DB 設計・API連携・Docker による環�
 ## 開発背景
 Spring Boot の理解を深めるため、以下の要素を含む Web アプリを制作しました。
 
- - 認証機能 (Spring Security）
- - DB 永続化（Spring Data JPA）
- - 外部 API 連携
- - ユーザ単位でのデータ分離
- - Docker によるコンテナ環境構築
+ - 認証機能 (Spring Security）  
+ - DB 永続化（Spring Data JPA）  
+ - 外部 API 連携  
+ - ユーザ単位でのデータ分離  
+ - 管理者機能（ユーザ管理・レート管理）  
+ - Docker によるコンテナ環境構築  
+ - DTO / Mapper によるレイヤードアーキテクチャ  
 ---
 
 ## 主な機能
- - ユーザー登録・ログイン（Spring Security）
- - 外部 API から通貨レート取得
- - レートの自動保存（ユーザーごと）
- - 1時間以内のﾚｰﾄは再取得しない設計
- - 金額変換（例：USD → JPY）
- - ユーザーごとのレート履歴表示
- - 管理者専用画面
- 	- 全ユーザ一覧表示
- 	- ユーザ削除（※管理者は削除不可）
- 	- 全レート一覧表示・削除
+### 認証・ユーザ管理
+ - ユーザー登録・ログイン（Spring Security）  
+ - ロール管理（ROLE_USER / ROLE_ADMIN）  
+ - 管理者ユーザの自動生成（CommandLineRunner）  
+ 
+### 通貨変換 
+ - 外部 API から通貨レート取得  
+ - 1時間以内のﾚｰﾄは DB を再利用（API 呼び出し削減）  
+ - 金額変換（例：USD → JPY）  
+ - 変換結果をユーザごとに自動保存  
+ 
+### 履歴管理
+ - ユーザーごとのレート履歴表示（ページング対応）  
+ - 履歴の論理削除（削除日時・削除者を記録）  
+ - 削除前の確認ダイアログ  
+ 
+### 管理者専用画面
+ - 全ユーザ一覧表示・削除（※管理者は削除不可）  
+ - 全レート一覧表示  
+ - レートの論理削除 / 完全削除（物理削除）  
  ---
  
 ## 使用技術
@@ -43,15 +55,14 @@ Spring Boot の理解を深めるため、以下の要素を含む Web アプリ
 
 ## アーキテクチャ構成
 
-本アプリは以下のレイヤー構造で実装しています：  
-Controller → Service → Repository → MySQL  
+Controller → Service → Repository → MySQL   
+DTO / Mapper を導入し、 Controller が Entity を直接扱わない設計。 
 
 ### Docker 構成
- - `currency-app`（Spring Boot）
- - `currency-mysql`（MySQL 8.0）
- Docker Compose により、アプリと DB を同一ネットワークで接続。  
- 
- コンテナ内では `localhost` ではなく **サービス名で接続する設計** を採用しています。
+ - `currency-app`（Spring Boot）  
+ - `currency-mysql`（MySQL 8.0）  
+ アプリと DB は Docker Compose により同一ネットワークで接続。  
+ コンテナ間通信は `localhost` ではなく **サービス名で接続する設計** を採用しています。
  
  
 ## 技術的な工夫
@@ -62,29 +73,25 @@ Controller → Service → Repository → MySQL
 → API 使用回数削減 & パフォーマンス向上  
 
 ### ② ユーザ単位のデータ管理
-認証ユーザ名をキーとして保存することで、ユーザごとのデータ分離を実現。
+認証ユーザ名をキーとして保存することで、ユーザごとのデータ分離を実現。  
 
-### ③ Docker 環境での問題解決
+### ③ 論理削除の導入  
+・`deleted` / `deletedAt` / `deletedBy` を追加  
+・管理者画面では削除済みも表示  
+・ユーザ画面では削除済みを除外  
+ 
+### ④ Docker 環境での問題解決
+・Controller は DTO のみ扱う  
+・Entity → DTO 変換は Mapper に集約  
+・表示用フォーマット（日時など）も Mapper に統一  
+
+### ⑤ Docker 環境での問題解決
 開発中に発生した問題：  
 ・Hibernate Dialect エラー  
 ・コンテナ内から`localhost`接続できない問題  
 ・Maven parent POM 解決エラー  
 → ログ解析・ネットワーク理解により解決しました。  
- 
-### ④ ロールベースアクセス制御
-Spring Security を用いて、
- - `ROLE_USER`
- - `ROLE_ADMIN`
-を実装。  
-管理者画面は`@PreAuthorize("hasRole('ADMIN')")` により保護。
 
-### ⑤ 管理者ユーザの自動生成
-`CommandLineRunner` を使用し、
-アプリ起動時に admin ユーザが存在しない場合のみ自動生成。  
-これにより、
-・初期ログイン可能
-・本番データ重複防止
-を実現。
 
 ## アプリ全体構成図
 
@@ -152,8 +159,10 @@ docker compose down
 | GET | /signup | ユーザ登録画面 |
 | GET | /exchange | 通貨変換フォーム |
 | GET | /exchange/history | ユーザのレート履歴 |
+| POST | /exchage/history/delete | 履歴削除 |
 | GET | /admin/rates | 管理者全レート表示 |
-| POST | /admin/rates/delete | 管理者：レート削除 |
+| POST | /admin/rates/delete | レート論理削除 |
+| POST | /admin/rates/hard-delete | 管理者：レート完全削除 |
 | GET | /admin/users | 管理者：ユーザ一覧 |
 | POST | /admin/users/delete | 管理者：ユーザ削除 |
 
@@ -206,7 +215,7 @@ src/
  - API レート制限対策（キャッシュ強化）
  - グラフ表示（レート推移）
  - 管理者画面の UI 改善
- - 削除前確認ダイアログ追加
+ - テストコードの追加（JUnit / Mockito）
  
 ---
 ## このアプリで学んだこと
@@ -214,6 +223,8 @@ src/
  - 外部 API 連携の実装方法
  - Docker による開発環境構築
  - コンテナ間通信の考え方
+ - DTO / Mapper による責務分離
+ - 論理削除の設計と実装
  
  
 

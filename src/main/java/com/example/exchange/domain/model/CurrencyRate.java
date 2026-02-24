@@ -15,7 +15,11 @@ import lombok.Setter;
 
 /**
  * 通貨レート履歴を保存するエンティティ
- * 1回の変換処理につき1レコード保存される。
+ * 
+ *・1回の変換処理につき1レコード保存される。
+ *・ユーザが行った変換内容（通貨、金額、レート、日時）を保持する。
+ *・論理削除（deleted / deletedAt / deletedBy）に対応し、
+ *	履歴の復元性と監査制を確保する。
  */
 @Entity
 @Table(name = "currency_rate")
@@ -55,14 +59,25 @@ public class CurrencyRate {
 	@Column(nullable = false, precision = 18, scale = 2)
 	private BigDecimal convertedAmount;
 	
+	/** 論理削除フラグ（true = 削除済み） */
 	@Column(nullable = false)
 	private boolean deleted = false;
+	
+	/** 論理削除日時（null の場合は未削除） */
+	@Column
+	private LocalDateTime deletedAt;
+	
+	/** 削除を実行したユーザ名（ADMIN または一般ユーザ） */
+
+	@Column
+	private String deletedBy;
 	
 	/** JPA 用のデフォルトコンストラクタ */
 	public CurrencyRate() {}
 	
 	/**
 	 * 通常のコンストラクタ
+	 * 変換処理時に必要な情報をまとめて設定する。
 	 * 
 	 * @param username			ユーザー名
 	 * @param baseCurrency		基準通貨
@@ -90,6 +105,10 @@ public class CurrencyRate {
 		this.fetchedAt = fetchedAt;
 	}
 	
+	/**
+	 * 論理削除フラグを設定する。
+	 * （Lombok の setter を使わず、意図を明確にするために明示的に定義）
+	 */
 	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
 	}

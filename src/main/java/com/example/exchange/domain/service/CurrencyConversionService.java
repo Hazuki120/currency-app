@@ -17,20 +17,27 @@ import com.example.exchange.infrastructure.api.CurrencyRateApiClient;
 /**
  *  通貨レート取得・変換処理を担当するサービス
  *  
+ *  提供機能：
  *  ・外部 API からのレート取得
  *  ・レート履歴の保存
- *  ・最新レートの取得
+ *  ・最新レートの取得（１時間キャッシュ）
  *  ・金額変換ロジック
- *  を提供する。
+ *
+ * Controller からビジネスロジックを切り離し、
+ * 変換処理に関する責務をこのクラスに集約する
  */
 @Service
 public class CurrencyConversionService {
 	
+	/** 外部 API クライアント（為替レート取得用 */
 	private final CurrencyRateApiClient apiClient;
+	
+	/** レート履歴を保存・取得するリポジトリ */
 	private final CurrencyRateRepository rateRepository;
 
 	/**
 	 * コンストラクタインジェクション
+	 * 依存関係を明確にし、テスト容易性を高めるために採用。
 	 */
 	public CurrencyConversionService(
 			CurrencyRateRepository rateRepository,
@@ -52,6 +59,9 @@ public class CurrencyConversionService {
 
 	/**
 	 * レート履歴を DB に保存する
+	 * 
+	 * ・レートは scale=4 金額は scale=2 に正規化して保存
+	 * ・変換後金額も計算して保存
 	 * 
 	 * @param username ユーザ名
 	 * @param base 基準通貨
@@ -86,14 +96,16 @@ public class CurrencyConversionService {
 	}
 	
 	/**
-	 * ユーザのレート履歴一覧を取得
+	 * 指定ユーザのレート履歴一覧を取得（論理削除を除外）
 	 * 
 	 * @param username ユーザ名
+	 * @param page ページ番号
+	 * @param size １ページあたりの件数
 	 * @return レート履歴リスト
 	 */
 	public Page<CurrencyRate> getActiveRatesByUsername(String username, int page, int size){
 		Pageable pageable = PageRequest.of(page, size, Sort.by("fetchedAt").descending());
-		return rateRepository.findByUsernameOrderByFetchedAtDesc(username, pageable);
+		return rateRepository.findByUsernameAndDeletedFalseOrderByFetchedAtDesc(username, pageable);
 	}
 
 	/**
@@ -112,9 +124,10 @@ public class CurrencyConversionService {
 
 	/**
 	 * 金額変換のメインロジック
-	 * ・1時間以内なら DB のレートを使用
+	 * 
+	 * ・1時間以内なら DB のレートを使用（キャッシュ）
 	 * ・1時間以上経過していれば API 再取得
-	 * ・履歴は毎回保存
+	 * ・履歴は毎回保存する
 	 * 
 	 * @return 変換後の金額
 	 */
@@ -167,6 +180,10 @@ public class CurrencyConversionService {
 		return saveRate(username, base, target, rate, amount);
 	}
 	
+	/**
+	 * エンティティを返す変換処理。
+	 * API や他サービスから利用される可能性を考慮したメソッド
+	 */
 	public CurrencyRate convertWithEntity(String username,
 			BigDecimal amount, String base, String target) {
 		return convertInternal(username, amount, base, target);
