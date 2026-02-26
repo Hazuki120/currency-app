@@ -166,50 +166,6 @@ docker compose down
 | GET | /admin/users | 管理者：ユーザ一覧 |
 | POST | /admin/users/delete | 管理者：ユーザ削除 |
 
-## ディレクトリ構成
-```text
-src/  
- └─ main/  
-     ├─ java/  
-     │   └─ com/example/exchange/  
-     │        ├─ application/  
-     │        │    ├─ controller/  
-     │        │    │    ├─ AdminController.java  
-     │        │    │    ├─ CurrencyController.java  
-     │        │    │    ├─ HistoryController.java  
-     │        │    │    ├─ LoginController.java  
-     │        │    │    └─ SignUpController.java  
-     │        │    └─ config/  
-     │        │         ├─ CustmoLoginSuccessHandler.java  
-     │        │         └─ DataIntializer.java  
-     │        │         └─ SecurityConfig.java  
-     │        ├─ domain/  
-     │        │    ├─ model/  
-     │        │    │    ├─ CurrencyRate.java  
-     │        │    │    └─ User.java  
-     │        │    ├─ repository/  
-     │        │    │    ├─ CurrencyRateRepository.java  
-     │        │    │    └─ UserRepository.java  
-     │        │    ├─ service/  
-     │        │    │    ├─ CurrencyConversionService.java  
-     │        │    │    ├─ CurrencyRateService.java  
-     │        │    │    ├─ CustomUserDetailsService.java  
-     │        │    │    └─ UserService.java  
-     │        └─ infrastructure/  
-     │             └─ CurrencyAppApplication.java  
-     └─ resources/  
-         ├─ static/  
-         ├─ templates/  
-         │    ├─ exchange.html  
-         │    ├─ history.html  
-         │    ├─ login.html  
-         │    ├─ result.html  
-         │    ├─ signup.html  
-         │    └─ admin  
-         │         ├─ rates.html  
-         │         └─ users.html  
-         └─ application.properties  
-```
 
 ## 今後の課題
  - API レート制限対策（キャッシュ強化）
