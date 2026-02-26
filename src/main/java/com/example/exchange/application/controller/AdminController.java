@@ -1,5 +1,7 @@
 package com.example.exchange.application.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.exchange.application.dto.CurrencyRateDto;
+import com.example.exchange.application.mapper.UserMapper;
+import com.example.exchange.domain.model.User;
 import com.example.exchange.domain.service.CurrencyRateService;
 import com.example.exchange.domain.service.UserService;
 
@@ -29,7 +33,6 @@ import com.example.exchange.domain.service.UserService;
  * Controller は画面遷移・Model への値設定のみを担当し、
  * 実際の削除処理などのビジネスロジックは Service層へ委譲する。
  * 
- * @PreAuthorize により ADMIN 権限を持つユーザのみアクセス可能。
  * 
  */
 @Controller
@@ -43,14 +46,19 @@ public class AdminController {
 	/** ユーザ管理関連の業務処理を担当する */
 	private final UserService userService;
 	
+	/** User Entity → DTO 変換を担当する Mapper */
+	private final UserMapper userMapper;
+	
 	/**
 	 * コンストラクタインジェクション
 	 * 依存関係を明確にし、テスト容易性を高めるために採用。
 	 */
 	public AdminController(CurrencyRateService rateService,
-							UserService userService) {
+							UserService userService,
+							UserMapper userMapper) {
 		this.rateService = rateService;
 		this.userService = userService;
+		this.userMapper = userMapper;
 	}
 	
 	/**
@@ -108,13 +116,15 @@ public class AdminController {
 	
 	/**
 	 * 全ユーザ一覧を表示する。
+	 * Entity を直接渡さず、DTO に変換してから View に渡す。
 	 * 
 	 * @param model 画面へ値を渡すための Model
 	 * @return admin/users.html
 	 */
 	@GetMapping("/users")
 	public String showUsers(Model model){
-		model.addAttribute("users", userService.findAll());
+		List<User> users = userService.findAll();
+		model.addAttribute("users", userMapper.toDtoList(users));
 		return "admin/users";
 	}
 	
