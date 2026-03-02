@@ -140,5 +140,4 @@ public class AdminController {
 		userService.deleteById(id);
 		return "redirect:/admin/users";
 	}
-	
 }

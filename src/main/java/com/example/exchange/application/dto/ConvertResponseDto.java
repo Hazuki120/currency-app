@@ -42,5 +42,4 @@ public class ConvertResponseDto {
 		this.rate = rate;
 		this.fetchedAtText = fetchedAtText;
 	}
-
 }

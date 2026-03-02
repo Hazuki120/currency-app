@@ -52,5 +52,4 @@ public class HistoryDto {
 		this.rate = rate;
 		this.fetchedAtText = fetchedAtText;
 	}
-
 }

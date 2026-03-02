@@ -110,6 +110,5 @@ public class CurrencyRateService {
 	 */
 	public void hardDelete(Long id) {
 		rateRepository.deleteById(id);
-	}
-	
+	}	
 }

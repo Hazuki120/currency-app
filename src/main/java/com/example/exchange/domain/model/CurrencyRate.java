@@ -111,6 +111,5 @@ public class CurrencyRate {
 	 */
 	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
-	}
-	
+	}	
 }

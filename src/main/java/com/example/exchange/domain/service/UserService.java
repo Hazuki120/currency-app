@@ -95,8 +95,7 @@ public class UserService {
     	// 管理者削除禁止（業務ルール）
     	if(user.getRole().equals("ADMIN")) {
     		throw new RuntimeException("管理者は削除できません");
-    	}
-    	
+    	}	
     	userRepository.delete(user);
     }
 }

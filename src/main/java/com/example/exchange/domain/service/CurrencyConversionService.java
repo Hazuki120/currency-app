@@ -91,7 +91,6 @@ public class CurrencyConversionService {
 				converted,
 				LocalDateTime.now()
 		);
-		
 		return rateRepository.save(entity);
 	}
 	
@@ -188,5 +187,4 @@ public class CurrencyConversionService {
 			BigDecimal amount, String base, String target) {
 		return convertInternal(username, amount, base, target);
 	}
-
 }
