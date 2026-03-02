@@ -25,7 +25,7 @@ public class CurrencyRateApiClient {
 
 	/**
 	 * Spring 管理の RestTemplate 
-	 * 直接 new せず、Bean として注入することでテスト時にモックへ差し替え可能にしている
+	 * ソースコードへ直接記述しないことでセキュリティを確保
 	 */
 	private final RestTemplate restTemplate;
 
@@ -33,9 +33,7 @@ public class CurrencyRateApiClient {
 	private String apiKey;
 	
 	/**
-	 * application.properties に定義した API キー。
-	 * ソースコードへ直接書かず、外部設定から読み込むことで
-	 * セキュリティと環境依存の文ふぃを実現している。
+	 * コンストラクタインジェクション
 	 */
 	public CurrencyRateApiClient(RestTemplate restTemplate){
 		this.restTemplate = restTemplate;
